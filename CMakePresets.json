@@ -169,7 +169,7 @@
         },
         {
             "name": "ci-macos-tests",
-            "inherits": ["flags-unix","ci-build", "build-tests", "ci-clang-14"],
+            "inherits": ["flags-unix","ci-build", "build-tests"],
             "condition": {"type": "equals","lhs": "${hostSystemName}","rhs": "Darwin"}
         },
         {
