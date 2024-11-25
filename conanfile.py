@@ -7,10 +7,10 @@ class TasksQueueConan(ConanFile):
     extension_properties = {"compatibility_cppstd": False}
 
     options = {
-        
+
     }
     default_options = {
-        
+
     }
 
     def requirements(self):

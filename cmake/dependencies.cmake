@@ -11,14 +11,19 @@ macro(handle_3rdparty TARGET_NAME)
     set_target_properties(${TARGET_NAME} PROPERTIES FOLDER 3rdparty)
   endif()
 
-  set_target_properties(${TARGET_NAME} PROPERTIES INTERFACE_SYSTEM_INCLUDE_DIRECTORIES $<TARGET_PROPERTY:${TARGET_NAME},INTERFACE_INCLUDE_DIRECTORIES>)
+  set_target_properties(
+    ${TARGET_NAME}
+    PROPERTIES INTERFACE_SYSTEM_INCLUDE_DIRECTORIES
+               $<TARGET_PROPERTY:${TARGET_NAME},INTERFACE_INCLUDE_DIRECTORIES>)
 endmacro()
 
 macro(fetch_library_extended NAME URL TAG TARGET_NAME)
-  Include(FetchContent)
-  set(BUILD_SHARED_LIBS OFF CACHE INTERNAL "Build SHARED libraries")
+  include(FetchContent)
+  set(BUILD_SHARED_LIBS
+      OFF
+      CACHE INTERNAL "Build SHARED libraries")
 
-  Set(FETCHCONTENT_QUIET FALSE)
+  set(FETCHCONTENT_QUIET FALSE)
 
   FetchContent_Declare(
     ${NAME}
@@ -26,8 +31,7 @@ macro(fetch_library_extended NAME URL TAG TARGET_NAME)
     GIT_TAG ${TAG}
     GIT_SHALLOW TRUE
     GIT_PROGRESS TRUE
-    GIT_SUBMODULES ""
-  )
+    GIT_SUBMODULES "")
 
   FetchContent_MakeAvailable(${NAME})
   handle_3rdparty(${TARGET_NAME})
