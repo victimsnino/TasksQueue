@@ -98,7 +98,7 @@ function(detect_os os os_api_level os_sdk os_subsystem os_version)
           set(_os_sdk "watch${apple_platform_suffix}")
         endif()
       endif()
-      if(DEFINED os_sdk)
+      if(NOT DEFINED os_sdk)
         message(STATUS "CMake-Conan: cmake_osx_sysroot=${CMAKE_OSX_SYSROOT}")
         set(${os_sdk}
             ${_os_sdk}
