@@ -2,7 +2,7 @@ find_package(Threads)
 
 macro(handle_3rdparty TARGET_NAME)
   get_target_property(TARGET_TYPE ${TARGET_NAME} TYPE)
-  if (${TARGET_TYPE} STREQUAL "INTERFACE_LIBRARY")
+  if(${TARGET_TYPE} STREQUAL "INTERFACE_LIBRARY")
     target_compile_options(${TARGET_NAME} INTERFACE "-w")
   else()
     target_compile_options(${TARGET_NAME} PRIVATE "-w")
@@ -23,9 +23,9 @@ macro(fetch_library_extended NAME URL TAG TARGET_NAME)
   FetchContent_Declare(
     ${NAME}
     GIT_REPOSITORY ${URL}
-    GIT_TAG        ${TAG}
-    GIT_SHALLOW    TRUE
-    GIT_PROGRESS   TRUE
+    GIT_TAG ${TAG}
+    GIT_SHALLOW TRUE
+    GIT_PROGRESS TRUE
     GIT_SUBMODULES ""
   )
 
@@ -35,8 +35,20 @@ endmacro()
 
 macro(fetch_library NAME URL TAG)
   find_package(${NAME} QUIET)
-  if (NOT ${NAME}_FOUND)
+  if(NOT ${NAME}_FOUND)
     message("-- Fetching ${NAME}...")
     fetch_library_extended(${NAME} ${URL} ${TAG} ${NAME})
+  endif()
+endmacro()
+
+if(BUILD_TESTS)
+  include(CTest)
+
+  fetch_library(doctest https://github.com/doctest/doctest.git v2.4.11)
+endif()
+
+macro(add_tests_folder folder)
+  if(BUILD_TESTS)
+    add_subdirectory(${folder})
   endif()
 endmacro()

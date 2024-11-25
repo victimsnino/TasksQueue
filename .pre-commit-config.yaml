@@ -28,3 +28,8 @@ repos:
         args: ["-style=file", "-i"]
         types_or: [c++, c]
         require_serial: true
+
+-   repo: https://github.com/rhysd/actionlint
+    rev: v1.7.4
+    hooks:
+      - id: actionlint
