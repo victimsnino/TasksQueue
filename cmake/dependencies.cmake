@@ -51,7 +51,7 @@ if(BUILD_TESTS)
   fetch_library(doctest https://github.com/doctest/doctest.git v2.4.11)
 endif()
 
-macro(add_tests_folder folder)
+macro(add_tests_subdirectory folder)
   if(BUILD_TESTS)
     add_subdirectory(${folder})
   endif()
