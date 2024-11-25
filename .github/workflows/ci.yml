@@ -117,7 +117,7 @@ jobs:
                         {name: ci-ubuntu-clang, os: ubuntu-latest},
                         {name: ci-windows,      os: windows-latest},
                         {name: ci-macos,        os: macos-latest}]
-              type: [tests, benchmarks]
+              type: [tests]
               build_type: [{config: Release, test_preset: ci-tests}]
 
 
