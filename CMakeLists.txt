@@ -13,7 +13,7 @@ project(
   VERSION 0.0.1
   DESCRIPTION ""
   HOMEPAGE_URL "https://github.com/victimsnino/TasksQueue"
-  LANGUAGES CXX)
+  LANGUAGES C CXX)
 
 include(cmake/variables.cmake)
 include(cmake/dependencies.cmake)
