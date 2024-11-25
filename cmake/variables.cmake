@@ -16,3 +16,9 @@ if(CCACHE)
 endif(CCACHE)
 
 option(BUILD_TESTS "Build unit tests tree." OFF)
+
+if (DEFINED CONAN_ARGS)
+    if (BUILD_TESTS)
+        set(CONAN_ARGS "${CONAN_ARGS};-o tasks_queue/*:with_tests=True")
+    endif()
+endif()

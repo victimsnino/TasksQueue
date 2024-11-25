@@ -100,7 +100,7 @@
         {
             "name": "build-tests",
             "hidden": true,
-            "environment": {
+            "cacheVariables": {
                 "BUILD_TESTS": "ON"
             }
         },
