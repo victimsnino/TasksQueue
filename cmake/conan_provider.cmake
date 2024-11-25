@@ -529,13 +529,13 @@ function(conan_profile_detect_default)
 endfunction()
 
 function(conan_install)
-  cmake_parse_arguments(ARGS conan_args ${ARGN})
+  cmake_parse_arguments(ARGS CONAN_ARGS ${ARGN})
   set(conan_output_folder ${CMAKE_BINARY_DIR}/conan)
   # Invoke "conan install" with the provided arguments
-  set(conan_args ${conan_args} -of=${conan_output_folder})
+  set(CONAN_ARGS ${CONAN_ARGS} -of=${conan_output_folder})
   message(
     STATUS
-      "CMake-Conan: conan install ${CMAKE_SOURCE_DIR} ${conan_args} ${ARGN}")
+      "CMake-Conan: conan install ${CMAKE_SOURCE_DIR} ${CONAN_ARGS} ${ARGN}")
 
   # In case there was not a valid cmake executable in the PATH, we inject the
   # same we used to invoke the provider to the PATH
@@ -545,7 +545,7 @@ function(conan_install)
   endif()
 
   execute_process(
-    COMMAND ${CONAN_COMMAND} install ${CMAKE_SOURCE_DIR} ${conan_args} ${ARGN}
+    COMMAND ${CONAN_COMMAND} install ${CMAKE_SOURCE_DIR} ${CONAN_ARGS} ${ARGN}
             --format=json
     RESULT_VARIABLE return_code
     OUTPUT_VARIABLE conan_stdout
