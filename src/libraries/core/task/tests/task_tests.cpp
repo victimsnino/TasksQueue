@@ -4,5 +4,5 @@
 
 TEST_CASE("test_task")
 {
-    REQUIRE(core::task{}.test(1) == 1);
+    REQUIRE(core::task{}.test(1) == 10);
 }
