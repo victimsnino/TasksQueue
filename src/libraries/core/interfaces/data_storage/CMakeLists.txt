@@ -1,0 +1,10 @@
+tq_add_library(data_storage
+    TARGET_NAME
+        data_storage
+    LIBRARY_TYPE
+        INTERFACE
+    SOURCES
+        data_storage.hpp
+    INTERFACE
+        task
+)

@@ -48,6 +48,7 @@ endmacro()
 if(BUILD_TESTS)
   include(CTest)
   fetch_library(doctest https://github.com/doctest/doctest.git v2.4.11)
+  fetch_library(trompeloeil https://github.com/rollbear/trompeloeil.git v48)
 
   file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/doctest_main.cpp "#define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN\n#include <doctest/doctest.h>\n")
   add_library(doctest_main ${CMAKE_CURRENT_BINARY_DIR}/doctest_main.cpp)
@@ -59,18 +60,18 @@ endif()
 macro(tq_parse_arguments)
   set(TQ_LIBRARY_OPTIONS ADD_TESTS)
   set(TQ_LIBRARY_VALUES TARGET_NAME LIBRARY_TYPE)
-  set(TQ_LIBRARY_MULTI_VALUES SOURCES PRIVATE PUBLIC)
+  set(TQ_LIBRARY_MULTI_VALUES SOURCES PRIVATE PUBLIC INTERFACE)
   cmake_parse_arguments(PARSED "${TQ_LIBRARY_OPTIONS}" "${TQ_LIBRARY_VALUES}" "${TQ_LIBRARY_MULTI_VALUES}" ${ARGN})
 endmacro()
 
 function(tq_handle_library)
   tq_parse_arguments(${ARGN})
-  target_link_libraries(${PARSED_TARGET_NAME} PRIVATE ${PARSED_PRIVATE} PUBLIC ${PARSED_PUBLIC})
+  target_link_libraries(${PARSED_TARGET_NAME} PRIVATE ${PARSED_PRIVATE} PUBLIC ${PARSED_PUBLIC} INTERFACE ${PARSED_INTERFACE})
   target_include_directories(${PARSED_TARGET_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+  set_target_properties(${PARSED_TARGET_NAME} PROPERTIES LINKER_LANGUAGE CXX)
 
   if(PARSED_ADD_TESTS AND BUILD_TESTS)
-
-    file(GLOB_RECURSE FILES ${CMAKE_CURRENT_SOURCE_DIR}/tests/*)
+    file(GLOB_RECURSE FILES ${CMAKE_CURRENT_SOURCE_DIR}/ut/*)
     tq_add_executable(
       TARGET_NAME
         ${PARSED_TARGET_NAME}_test

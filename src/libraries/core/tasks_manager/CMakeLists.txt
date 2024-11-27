@@ -1,0 +1,13 @@
+tq_add_library(
+    TARGET_NAME
+        tasks_manager
+    LIBRARY_TYPE
+        STATIC
+    SOURCES
+        tasks_manager.cpp
+        tasks_manager.hpp
+    PUBLIC
+        data_storage
+        task
+    ADD_TESTS
+)
