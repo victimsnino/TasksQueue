@@ -14,3 +14,8 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 //
 // Home page: https://github.com/victimsnino/TasksQueue/
+
+#include <doctest/doctest.h>
+#include <doctest/trompeloeil.hpp>
+
+TEST_CASE("TasksManager forwards calls to storage") {}

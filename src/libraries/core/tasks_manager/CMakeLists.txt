@@ -26,5 +26,5 @@ tq_add_library(
     PUBLIC
         data_storage
         task
-    ADD_TESTS
+    ADD_TESTS_WITH_MOCK
 )

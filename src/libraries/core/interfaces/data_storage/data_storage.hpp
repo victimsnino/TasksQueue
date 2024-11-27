@@ -23,11 +23,11 @@
 
 namespace core::interfaces
 {
-    struct data_storage
+    struct DataStorage
     {
-        virtual ~data_storage() = default;
+        virtual ~DataStorage() = default;
 
-        virtual task              create_task(const task_payload& payload) = 0;
-        virtual std::vector<task> get_tasks() const                        = 0;
+        virtual Task              CreateTask(const TaskPayload& payload) = 0;
+        virtual std::vector<Task> GetTasks() const                       = 0;
     };
 } // namespace core::interfaces

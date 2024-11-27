@@ -24,20 +24,20 @@
 
 namespace core::interfaces
 {
-    struct data_storage;
+    struct DataStorage;
 } // namespace core::interfaces
 
 namespace core
 {
-    class tasks_manager
+    class TasksManager
     {
     public:
-        explicit tasks_manager(std::shared_ptr<interfaces::data_storage> storage);
+        explicit TasksManager(std::shared_ptr<interfaces::DataStorage> storage);
 
-        interfaces::task              create_task(const interfaces::task_payload& payload) const;
-        std::vector<interfaces::task> get_tasks() const;
+        interfaces::Task              CreateTask(const interfaces::TaskPayload& payload) const;
+        std::vector<interfaces::Task> GetTasks() const;
 
     private:
-        std::shared_ptr<interfaces::data_storage> m_storage{};
+        std::shared_ptr<interfaces::DataStorage> m_storage{};
     };
 } // namespace core

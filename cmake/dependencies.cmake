@@ -58,7 +58,7 @@ if(BUILD_TESTS)
 endif()
 
 macro(tq_parse_arguments)
-  set(TQ_LIBRARY_OPTIONS ADD_TESTS)
+  set(TQ_LIBRARY_OPTIONS ADD_TESTS ADD_TESTS_WITH_MOCK)
   set(TQ_LIBRARY_VALUES TARGET_NAME LIBRARY_TYPE)
   set(TQ_LIBRARY_MULTI_VALUES SOURCES PRIVATE PUBLIC INTERFACE)
   cmake_parse_arguments(PARSED "${TQ_LIBRARY_OPTIONS}" "${TQ_LIBRARY_VALUES}" "${TQ_LIBRARY_MULTI_VALUES}" ${ARGN})
@@ -70,8 +70,12 @@ function(tq_handle_library)
   target_include_directories(${PARSED_TARGET_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
   set_target_properties(${PARSED_TARGET_NAME} PROPERTIES LINKER_LANGUAGE CXX)
 
-  if(PARSED_ADD_TESTS AND BUILD_TESTS)
+  if((PARSED_ADD_TESTS OR PARSED_ADD_TESTS_WITH_MOCK) AND BUILD_TESTS)
     file(GLOB_RECURSE FILES ${CMAKE_CURRENT_SOURCE_DIR}/ut/*)
+    set(TEST_LIBS doctest_main)
+    if (PARSED_ADD_TESTS_WITH_MOCK)
+      LIST(APPEND TEST_LIBS trompeloeil::trompeloeil)
+    endif()
     tq_add_executable(
       TARGET_NAME
         ${PARSED_TARGET_NAME}_test
@@ -80,7 +84,7 @@ function(tq_handle_library)
       PRIVATE
         ${PARSED_PUBLIC}
         ${PARSED_TARGET_NAME}
-        doctest_main
+        ${TEST_LIBS}
       )
     doctest_discover_tests(${PARSED_TARGET_NAME}_test )
   endif()

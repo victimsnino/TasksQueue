@@ -22,15 +22,15 @@
 
 namespace core::interfaces
 {
-    struct task_payload
+    struct TaskPayload
     {
         std::string name{};
         std::string description{};
     };
 
-    struct task
+    struct Task
     {
-        size_t       id{};
-        task_payload payload{};
+        size_t      id{};
+        TaskPayload payload{};
     };
 } // namespace core::interfaces

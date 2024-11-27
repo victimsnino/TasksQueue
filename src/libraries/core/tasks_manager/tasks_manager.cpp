@@ -19,20 +19,22 @@
 
 #include <libraries/core/interfaces/data_storage/data_storage.hpp>
 
+#include <utility>
+
 namespace core
 {
-    tasks_manager::tasks_manager(std::shared_ptr<interfaces::data_storage> storage)
-        : m_storage{storage}
+    TasksManager::TasksManager(std::shared_ptr<interfaces::DataStorage> storage)
+        : m_storage{std::move(storage)}
     {
     }
 
-    interfaces::task tasks_manager::create_task(const interfaces::task_payload& payload) const
+    interfaces::Task TasksManager::CreateTask(const interfaces::TaskPayload& payload) const
     {
-        return m_storage->create_task(payload);
+        return m_storage->CreateTask(payload);
     }
 
-    std::vector<interfaces::task> tasks_manager::get_tasks() const
+    std::vector<interfaces::Task> TasksManager::GetTasks() const
     {
-        return m_storage->get_tasks();
+        return m_storage->GetTasks();
     }
 } // namespace core
