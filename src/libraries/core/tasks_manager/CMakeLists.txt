@@ -15,11 +15,9 @@
 #
 # Home page: https://github.com/victimsnino/TasksQueue/
 
-tq_add_library(
+tq_add_static_library(
     TARGET_NAME
         tasks_manager
-    LIBRARY_TYPE
-        STATIC
     SOURCES
         tasks_manager.cpp
         tasks_manager.hpp
