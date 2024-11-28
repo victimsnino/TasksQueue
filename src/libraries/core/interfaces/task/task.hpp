@@ -27,7 +27,7 @@ namespace core::interfaces
         std::string name{};
         std::string description{};
 
-        bool operator<=>(const TaskPayload& rhs) const = default;
+        auto operator<=>(const TaskPayload& rhs) const = default;
     };
 
     struct Task
@@ -35,6 +35,6 @@ namespace core::interfaces
         size_t      id{};
         TaskPayload payload{};
 
-        bool operator<=>(const Task& rhs) const = default;
+        auto operator<=>(const Task& rhs) const = default;
     };
 } // namespace core::interfaces

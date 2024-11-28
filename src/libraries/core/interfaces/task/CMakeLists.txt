@@ -15,11 +15,9 @@
 #
 # Home page: https://github.com/victimsnino/TasksQueue/
 
-tq_add_library(
+tq_add_interface_library(
     TARGET_NAME
         task
-    LIBRARY_TYPE
-        INTERFACE
     SOURCES
         task.hpp
 )
