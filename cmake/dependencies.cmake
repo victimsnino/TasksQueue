@@ -92,7 +92,14 @@ function(tq_add_test_executable_in_ut_folder)
 
   tq_parse_arguments(${ARGN})
 
-  file(GLOB_RECURSE FILES ${CMAKE_CURRENT_SOURCE_DIR}/ut/*)
+  set(TEST_DIR ${CMAKE_CURRENT_SOURCE_DIR}/ut)
+  if(NOT EXISTS ${TEST_DIR})
+    message(FATAL_ERROR "Test directory not found: ${TEST_DIR}")
+  endif()
+  file(GLOB_RECURSE FILES ${TEST_DIR}/*)
+  if (NOT FILES)
+    message(FATAL_ERROR "Test directory ${TEST_DIR} is empty")
+  endif()
 
   set(TEST_LIBS doctest_main)
   if (PARSED_ADD_TESTS_WITH_MOCK)
