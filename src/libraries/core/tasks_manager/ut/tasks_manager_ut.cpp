@@ -18,4 +18,36 @@
 #include <doctest/doctest.h>
 #include <doctest/trompeloeil.hpp>
 
-TEST_CASE("TasksManager forwards calls to storage") {}
+#include <libraries/core/interfaces/data_storage/data_storage.hpp>
+#include <libraries/core/tasks_manager/tasks_manager.hpp>
+
+struct MockDataStorage final : public trompeloeil::mock_interface<core::interfaces::DataStorage>
+{
+    IMPLEMENT_MOCK1(CreateTask);
+    IMPLEMENT_CONST_MOCK0(GetTasks);
+};
+
+TEST_CASE("TasksManager forwards calls to storage")
+{
+    auto                  mock = std::make_shared<MockDataStorage>();
+    core::TasksManager    manager{mock};
+    trompeloeil::sequence s{};
+
+    core::interfaces::TaskPayload payload{.name = "name", .description = "description"};
+    core::interfaces::Task        task{.id = 123, .payload = {.name = "name2", .description = "description2"}};
+
+    SUBCASE("CreateTask")
+    {
+        REQUIRE_CALL(*mock, CreateTask(payload)).RETURN(task).IN_SEQUENCE(s);
+
+        manager.CreateTask(payload);
+    }
+
+    SUBCASE("GetTasks")
+    {
+        const auto res = std::vector{task};
+        REQUIRE_CALL(*mock, GetTasks()).RETURN(res).IN_SEQUENCE(s);
+
+        REQUIRE(manager.GetTasks() == res);
+    }
+}

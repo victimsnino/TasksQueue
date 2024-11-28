@@ -26,11 +26,15 @@ namespace core::interfaces
     {
         std::string name{};
         std::string description{};
+
+        bool operator<=>(const TaskPayload& rhs) const = default;
     };
 
     struct Task
     {
         size_t      id{};
         TaskPayload payload{};
+
+        bool operator<=>(const Task& rhs) const = default;
     };
 } // namespace core::interfaces
