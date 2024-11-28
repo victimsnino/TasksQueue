@@ -44,6 +44,12 @@ TEST_CASE("every storage satisfy storage requirements")
                 REQUIRE(storage.GetTasks() == std::vector{task_1});
             }
 
+            SUBCASE("delete non-existing task")
+            {
+                storage.DeleteTask(10000);
+                REQUIRE(storage.GetTasks() == std::vector{task_0, task_1});
+            }
+
             SUBCASE("delete task 1")
             {
                 storage.DeleteTask(1);
