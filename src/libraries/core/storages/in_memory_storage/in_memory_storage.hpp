@@ -17,18 +17,21 @@
 
 #pragma once
 
-#include <libraries/core/interfaces/task/task.hpp>
+#include <libraries/core/interfaces/data_storage/data_storage.hpp>
 
-#include <vector>
-
-namespace core::interfaces
+namespace core::storages
 {
-    struct DataStorage
+    class InMemoryStorage final : public interfaces::DataStorage
     {
-        virtual ~DataStorage() = default;
+    public:
+        InMemoryStorage() = default;
 
-        virtual Task              CreateTask(const TaskPayload& payload) = 0;
-        virtual void              DeleteTask(size_t index)               = 0;
-        virtual std::vector<Task> GetTasks() const                       = 0;
+        interfaces::Task              CreateTask(const interfaces::TaskPayload& payload) override;
+        void                          DeleteTask(size_t index) override;
+        std::vector<interfaces::Task> GetTasks() const override;
+
+    private:
+        std::vector<interfaces::Task> m_tasks{};
+        size_t                        m_id{};
     };
-} // namespace core::interfaces
+} // namespace core::storages
