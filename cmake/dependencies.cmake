@@ -51,7 +51,7 @@ if(BUILD_TESTS)
   fetch_library(trompeloeil https://github.com/rollbear/trompeloeil.git v48)
 
   file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/doctest_main.cpp "#define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN\n#include <doctest/doctest.h>\n")
-  add_library(doctest_main ${CMAKE_CURRENT_BINARY_DIR}/doctest_main.cpp)
+  add_library(doctest_main STATIC ${CMAKE_CURRENT_BINARY_DIR}/doctest_main.cpp)
   target_link_libraries(doctest_main PUBLIC doctest::doctest)
 
   include(doctest)
@@ -86,7 +86,7 @@ function(tq_handle_library)
         ${PARSED_TARGET_NAME}
         ${TEST_LIBS}
       )
-    doctest_discover_tests(${PARSED_TARGET_NAME}_test )
+    doctest_discover_tests(${PARSED_TARGET_NAME}_test)
   endif()
 endfunction()
 
