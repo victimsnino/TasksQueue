@@ -92,7 +92,11 @@ endfunction()
 
 function(tq_add_library)
   tq_parse_arguments(${ARGN})
-  add_library(${PARSED_TARGET_NAME} ${PARSED_LIBRARY_TYPE} ${PARSED_SOURCES})
+  if (DEFINED PARSED_LIBRARY_TYPE AND PARSED_LIBRARY_TYPE STREQUAL "INTERFACE")
+    add_library(${PARSED_TARGET_NAME} INTERFACE)
+  else()
+    add_library(${PARSED_TARGET_NAME} ${PARSED_LIBRARY_TYPE} ${PARSED_SOURCES})
+  endif()
   tq_handle_library(${ARGN})
 endfunction()
 
