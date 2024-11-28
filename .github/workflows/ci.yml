@@ -81,6 +81,10 @@ jobs:
         with:
           fetch-depth: 0
 
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.6.x - 3.11.x'
+
       - name: get conan
         uses: turtlebrowser/get-conan@main
 
@@ -143,6 +147,10 @@ jobs:
 
         - name: Cmake version
           run: cmake --version
+
+        - uses: actions/setup-python@v5
+          with:
+            python-version: '3.6.x - 3.11.x'
 
         - name: get conan
           uses: turtlebrowser/get-conan@main
