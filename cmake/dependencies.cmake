@@ -69,24 +69,54 @@ function(tq_handle_library)
   target_link_libraries(${PARSED_TARGET_NAME} PRIVATE ${PARSED_PRIVATE} PUBLIC ${PARSED_PUBLIC} INTERFACE ${PARSED_INTERFACE})
   set_target_properties(${PARSED_TARGET_NAME} PROPERTIES LINKER_LANGUAGE CXX)
 
-  if((PARSED_ADD_TESTS OR PARSED_ADD_TESTS_WITH_MOCK) AND BUILD_TESTS)
-    file(GLOB_RECURSE FILES ${CMAKE_CURRENT_SOURCE_DIR}/ut/*)
-    set(TEST_LIBS doctest_main)
+  if(PARSED_ADD_TESTS OR PARSED_ADD_TESTS_WITH_MOCK)
+    set(EXTRA)
     if (PARSED_ADD_TESTS_WITH_MOCK)
-      LIST(APPEND TEST_LIBS trompeloeil::trompeloeil)
+      list(APPEND EXTRA ADD_TESTS_WITH_MOCK)
     endif()
-    tq_add_executable(
-      TARGET_NAME
-        ${PARSED_TARGET_NAME}_test
-      SOURCES
-        ${FILES}
-      PRIVATE
-        ${PARSED_PUBLIC}
-        ${PARSED_TARGET_NAME}
-        ${TEST_LIBS}
-      )
-    doctest_discover_tests(${PARSED_TARGET_NAME}_test )
+    tq_add_test_executable_in_ut_folder(
+        TARGET_NAME
+          ${PARSED_TARGET_NAME}_ut
+        PRIVATE
+          ${PARSED_PUBLIC}
+          ${PARSED_TARGET_NAME}
+        ${EXTRA}
+        )
   endif()
+endfunction()
+
+function(tq_add_test_executable_in_ut_folder)
+  if(NOT BUILD_TESTS)
+    return()
+  endif()
+
+  tq_parse_arguments(${ARGN})
+
+  set(TEST_DIR ${CMAKE_CURRENT_SOURCE_DIR}/ut)
+  if(NOT EXISTS ${TEST_DIR})
+    message(FATAL_ERROR "Test directory not found: ${TEST_DIR}")
+  endif()
+  file(GLOB_RECURSE FILES ${TEST_DIR}/*)
+  if (NOT FILES)
+    message(FATAL_ERROR "Test directory ${TEST_DIR} is empty")
+  endif()
+
+  set(TEST_LIBS doctest_main)
+  if (PARSED_ADD_TESTS_WITH_MOCK)
+      list(APPEND TEST_LIBS trompeloeil::trompeloeil)
+  endif()
+
+  tq_add_executable(
+    TARGET_NAME
+      ${PARSED_TARGET_NAME}
+    SOURCES
+      ${FILES}
+    PRIVATE
+      ${PARSED_PUBLIC}
+      ${PARSED_PRIVATE}
+      ${TEST_LIBS}
+    )
+  doctest_discover_tests(${PARSED_TARGET_NAME})
 endfunction()
 
 function(tq_add_static_library)

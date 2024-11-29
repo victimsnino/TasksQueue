@@ -24,6 +24,7 @@
 struct MockDataStorage final : public trompeloeil::mock_interface<core::interfaces::DataStorage>
 {
     IMPLEMENT_MOCK1(CreateTask);
+    IMPLEMENT_MOCK1(DeleteTask);
     IMPLEMENT_CONST_MOCK0(GetTasks);
 };
 

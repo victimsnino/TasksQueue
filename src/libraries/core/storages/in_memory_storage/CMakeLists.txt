@@ -15,6 +15,12 @@
 #
 # Home page: https://github.com/victimsnino/TasksQueue/
 
-add_subdirectory(interfaces)
-add_subdirectory(tasks_manager)
-add_subdirectory(storages)
+tq_add_static_library(
+    TARGET_NAME
+        in_memory_storage
+    SOURCES
+        in_memory_storage.cpp
+        in_memory_storage.hpp
+    PUBLIC
+        data_storage
+)
