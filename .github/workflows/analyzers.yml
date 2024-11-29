@@ -1,31 +1,28 @@
 name: Analyzers/sanitizers
 
 on:
-  pull_request:
-    branches:
-    - main
-  # workflow_run:
-  #   workflows:
-  #     - "CI"
-  #   types:
-  #     - completed
+  workflow_run:
+    workflows:
+      - "CI"
+    types:
+      - completed
 
 
 jobs:
   sonarcloud_and_coverage:
     runs-on: ubuntu-latest
 
-    # if: github.repository_owner == 'victimsnino' && github.event.workflow_run.conclusion == 'success'
+    if: github.repository_owner == 'victimsnino' && github.event.workflow_run.conclusion == 'success'
 
     steps:
-    # - uses: haya14busa/action-workflow_run-status@main
+    - uses: haya14busa/action-workflow_run-status@main
 
     - uses: actions/checkout@v4
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
         fetch-depth: 0
-        # repository: ${{ github.event.workflow_run.head_repository.full_name }}
-        # ref: ${{ github.event.workflow_run.head_branch }}
+        repository: ${{ github.event.workflow_run.head_repository.full_name }}
+        ref: ${{ github.event.workflow_run.head_branch }}
 
     - name: Install llvm
       run: sudo apt-get update -q && sudo apt-get install llvm -q -y
@@ -63,25 +60,25 @@ jobs:
     - name: Process coverage info
       run: cmake --build build -t coverage
 
-    # - name: "Get PR information"
-    #   uses: potiuk/get-workflow-origin@v1_3
-    #   id: source-run-info
-    #   with:
-    #     token: ${{ secrets.GITHUB_TOKEN }}
-    #     sourceRunId: ${{ github.event.workflow_run.id }}
+    - name: "Get PR information"
+      uses: potiuk/get-workflow-origin@v1_3
+      id: source-run-info
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        sourceRunId: ${{ github.event.workflow_run.id }}
 
     - name: Run sonar-scanner on PUSH
-      # if: github.event.workflow_run.event == 'push'
+      if: github.event.workflow_run.event == 'push'
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       run: |
-        sonar-scanner
+        sonar-scanner --define sonar.scm.revision=${{ github.event.workflow_run.head_sha }}
 
-    # - name: Run sonar-scanner on PullRequest
-    #   # if: github.event.workflow_run.event == 'pull_request'
-    #   env:
-    #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    #     SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-    #   run: |
-    #     sonar-scanner --define sonar.scm.revision=${{ github.event.workflow_run.head_sha }} --define sonar.pullrequest.key=${{ steps.source-run-info.outputs.pullRequestNumber }} --define sonar.pullrequest.branch=${{ steps.source-run-info.outputs.sourceHeadBranch }} --define sonar.pullrequest.base=${{ steps.source-run-info.outputs.targetBranch }}
+    - name: Run sonar-scanner on PullRequest
+      if: github.event.workflow_run.event == 'pull_request'
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      run: |
+        sonar-scanner --define sonar.scm.revision=${{ github.event.workflow_run.head_sha }} --define sonar.pullrequest.key=${{ steps.source-run-info.outputs.pullRequestNumber }} --define sonar.pullrequest.branch=${{ steps.source-run-info.outputs.sourceHeadBranch }} --define sonar.pullrequest.base=${{ steps.source-run-info.outputs.targetBranch }}
