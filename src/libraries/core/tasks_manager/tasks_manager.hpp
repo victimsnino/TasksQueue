@@ -17,27 +17,27 @@
 
 #pragma once
 
-#include <libraries/core/interfaces/task/task.hpp>
+#include <libraries/core/interface/task/task.hpp>
 
 #include <memory>
 #include <vector>
 
-namespace core::interfaces
+namespace core::interface
 {
     struct DataStorage;
-} // namespace core::interfaces
+} // namespace core::interface
 
 namespace core
 {
     class TasksManager
     {
     public:
-        explicit TasksManager(std::shared_ptr<interfaces::DataStorage> storage);
+        explicit TasksManager(std::shared_ptr<interface::DataStorage> storage);
 
-        interfaces::Task              CreateTask(const interfaces::TaskPayload& payload) const;
-        std::vector<interfaces::Task> GetTasks() const;
+        interface::Task              CreateTask(const interface::TaskPayload& payload) const;
+        std::vector<interface::Task> GetTasks() const;
 
     private:
-        std::shared_ptr<interfaces::DataStorage> m_storage{};
+        std::shared_ptr<interface::DataStorage> m_storage{};
     };
 } // namespace core

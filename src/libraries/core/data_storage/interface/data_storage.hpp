@@ -17,24 +17,18 @@
 
 #pragma once
 
-#include <cstddef>
-#include <string>
+#include <libraries/core/interface/task/task.hpp>
 
-namespace core::interfaces
+#include <vector>
+
+namespace core::interface
 {
-    struct TaskPayload
+    struct DataStorage
     {
-        std::string name{};
-        std::string description{};
+        virtual ~DataStorage() = default;
 
-        auto operator<=>(const TaskPayload& rhs) const = default;
+        virtual Task              CreateTask(const TaskPayload& payload) = 0;
+        virtual void              DeleteTask(size_t index)               = 0;
+        virtual std::vector<Task> GetTasks() const                       = 0;
     };
-
-    struct Task
-    {
-        size_t      id{};
-        TaskPayload payload{};
-
-        auto operator<=>(const Task& rhs) const = default;
-    };
-} // namespace core::interfaces
+} // namespace core::interface

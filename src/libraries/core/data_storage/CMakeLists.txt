@@ -15,5 +15,12 @@
 #
 # Home page: https://github.com/victimsnino/TasksQueue/
 
-add_subdirectory(data_storage)
-add_subdirectory(task)
+add_subdirectory(in_memory_storage)
+add_subdirectory(interface)
+
+tq_add_test_executable_in_ut_folder(
+    TARGET_NAME
+        storages_ut
+    PRIVATE
+        in_memory_storage
+)

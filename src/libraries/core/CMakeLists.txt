@@ -15,6 +15,6 @@
 #
 # Home page: https://github.com/victimsnino/TasksQueue/
 
-add_subdirectory(interfaces)
+add_subdirectory(interface)
 add_subdirectory(tasks_manager)
-add_subdirectory(storages)
+add_subdirectory(data_storage)
