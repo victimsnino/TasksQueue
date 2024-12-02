@@ -17,11 +17,11 @@
 
 #pragma once
 
-#include <libraries/core/interface/task/task.hpp>
+#include <libraries/backend/interface/task/task.hpp>
 
 #include <vector>
 
-namespace core::interface
+namespace backend::interface
 {
     struct DataStorage
     {
@@ -31,4 +31,4 @@ namespace core::interface
         virtual void              DeleteTask(size_t index)               = 0;
         virtual std::vector<Task> GetTasks() const                       = 0;
     };
-} // namespace core::interface
+} // namespace backend::interface

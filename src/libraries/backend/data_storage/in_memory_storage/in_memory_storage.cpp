@@ -15,29 +15,30 @@
 //
 // Home page: https://github.com/victimsnino/TasksQueue/
 
-#pragma once
+#include "in_memory_storage.hpp"
 
-#include <libraries/core/interface/task/task.hpp>
+#include <algorithm>
 
-#include <memory>
-#include <vector>
-
-namespace core::interface
+namespace backend::data_storage
 {
-    struct DataStorage;
-} // namespace core::interface
-
-namespace core
-{
-    class TasksManager
+    interface::Task InMemoryStorage::CreateTask(const interface::TaskPayload& payload)
     {
-    public:
-        explicit TasksManager(std::shared_ptr<interface::DataStorage> storage);
+        m_tasks.emplace_back(interface::Task{.id = m_id++, .payload = payload});
+        return m_tasks.back();
+    }
 
-        interface::Task              CreateTask(const interface::TaskPayload& payload) const;
-        std::vector<interface::Task> GetTasks() const;
+    void InMemoryStorage::DeleteTask(size_t index)
+    {
+        const auto itr = std::ranges::lower_bound(m_tasks, index, std::ranges::less{}, &interface::Task::id);
+        if (itr == m_tasks.end() || itr->id != index)
+            return;
 
-    private:
-        std::shared_ptr<interface::DataStorage> m_storage{};
-    };
-} // namespace core
+        m_tasks.erase(itr);
+    }
+
+    std::vector<interface::Task> InMemoryStorage::GetTasks() const
+    {
+        return m_tasks;
+    }
+
+} // namespace backend::data_storage

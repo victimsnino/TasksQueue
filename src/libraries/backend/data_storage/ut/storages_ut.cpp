@@ -17,22 +17,22 @@
 
 #include <doctest/doctest.h>
 
-#include <libraries/core/data_storage/in_memory_storage/in_memory_storage.hpp>
+#include <libraries/backend/data_storage/in_memory_storage/in_memory_storage.hpp>
 
 TEST_CASE("every storage satisfy storage requirements")
 {
-    constexpr auto test = [](core::interface::DataStorage&& storage) // NOLINT
+    constexpr auto test = [](backend::interface::DataStorage&& storage) // NOLINT
     {
         SUBCASE("manipulate storage")
         {
-            core::interface::TaskPayload payload{.name = "name", .description = "description"};
-            const auto                   task_0 = core::interface::Task{.id = 0, .payload = payload};
+            backend::interface::TaskPayload payload{.name = "name", .description = "description"};
+            const auto                      task_0 = backend::interface::Task{.id = 0, .payload = payload};
             REQUIRE(storage.CreateTask(payload) == task_0);
 
             auto new_payload        = payload;
             new_payload.name        = "name2";
             new_payload.description = "description2";
-            const auto task_1       = core::interface::Task{.id = 1, .payload = new_payload};
+            const auto task_1       = backend::interface::Task{.id = 1, .payload = new_payload};
 
             REQUIRE(storage.CreateTask(new_payload) == task_1);
 
@@ -58,11 +58,11 @@ TEST_CASE("every storage satisfy storage requirements")
                 SUBCASE("delete task 0")
                 {
                     storage.DeleteTask(0);
-                    REQUIRE(storage.GetTasks() == std::vector<core::interface::Task>{});
+                    REQUIRE(storage.GetTasks() == std::vector<backend::interface::Task>{});
                 }
                 SUBCASE("add task 3")
                 {
-                    const auto task_2 = core::interface::Task{.id = 2, .payload = payload};
+                    const auto task_2 = backend::interface::Task{.id = 2, .payload = payload};
 
                     REQUIRE(storage.CreateTask(payload) == task_2);
                     REQUIRE(storage.GetTasks() == std::vector{task_0, task_2});
@@ -79,6 +79,6 @@ TEST_CASE("every storage satisfy storage requirements")
 
     SUBCASE("InMemoryStorage")
     {
-        test(core::data_storage::InMemoryStorage{});
+        test(backend::data_storage::InMemoryStorage{});
     }
 }

@@ -15,26 +15,26 @@
 //
 // Home page: https://github.com/victimsnino/TasksQueue/
 
-#pragma once
+#include "tasks_manager.hpp"
 
-#include <cstddef>
-#include <string>
+#include <libraries/backend/data_storage/interface/data_storage.hpp>
 
-namespace core::interface
+#include <utility>
+
+namespace backend
 {
-    struct TaskPayload
+    TasksManager::TasksManager(std::shared_ptr<interface::DataStorage> storage)
+        : m_storage{std::move(storage)}
     {
-        std::string name{};
-        std::string description{};
+    }
 
-        auto operator<=>(const TaskPayload& rhs) const = default;
-    };
-
-    struct Task
+    interface::Task TasksManager::CreateTask(const interface::TaskPayload& payload) const
     {
-        size_t      id{};
-        TaskPayload payload{};
+        return m_storage->CreateTask(payload);
+    }
 
-        auto operator<=>(const Task& rhs) const = default;
-    };
-} // namespace core::interface
+    std::vector<interface::Task> TasksManager::GetTasks() const
+    {
+        return m_storage->GetTasks();
+    }
+} // namespace backend

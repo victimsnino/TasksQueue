@@ -18,10 +18,10 @@
 #include <doctest/doctest.h>
 #include <doctest/trompeloeil.hpp>
 
-#include <libraries/core/data_storage/interface/data_storage.hpp>
-#include <libraries/core/tasks_manager/tasks_manager.hpp>
+#include <libraries/backend/data_storage/interface/data_storage.hpp>
+#include <libraries/backend/tasks_manager/tasks_manager.hpp>
 
-struct MockDataStorage final : public trompeloeil::mock_interface<core::interface::DataStorage>
+struct MockDataStorage final : public trompeloeil::mock_interface<backend::interface::DataStorage>
 {
     IMPLEMENT_MOCK1(CreateTask);
     IMPLEMENT_MOCK1(DeleteTask);
@@ -31,11 +31,11 @@ struct MockDataStorage final : public trompeloeil::mock_interface<core::interfac
 TEST_CASE("TasksManager forwards calls to storage")
 {
     auto                  mock = std::make_shared<MockDataStorage>();
-    core::TasksManager    manager{mock};
+    backend::TasksManager manager{mock};
     trompeloeil::sequence s{};
 
-    core::interface::TaskPayload payload{.name = "name", .description = "description"};
-    core::interface::Task        task{.id = 123, .payload = {.name = "name2", .description = "description2"}};
+    backend::interface::TaskPayload payload{.name = "name", .description = "description"};
+    backend::interface::Task        task{.id = 123, .payload = {.name = "name2", .description = "description2"}};
 
     SUBCASE("CreateTask")
     {
