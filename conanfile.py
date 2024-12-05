@@ -14,7 +14,8 @@ class TasksQueueConan(ConanFile):
     }
 
     def requirements(self):
-        pass
+        self.requires("boost/1.86.0")
+        self.requires("openssl/3.3.2")
 
     def build_requirements(self):
         if self.options.with_tests:

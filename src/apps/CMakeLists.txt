@@ -15,7 +15,12 @@
 #
 # Home page: https://github.com/victimsnino/TasksQueue/
 
-include_directories(.)
-
-add_subdirectory(libraries)
-add_subdirectory(apps)
+tq_add_executable(
+    TARGET_NAME
+        test_app
+    SOURCES
+        test.cpp
+    PRIVATE
+        boost::boost
+        openssl::openssl
+)

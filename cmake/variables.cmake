@@ -16,6 +16,7 @@ if(CCACHE)
 endif(CCACHE)
 
 option(BUILD_TESTS "Build unit tests tree." OFF)
+option(BUILD_REST_SERVER "Build rest server." OFF)
 
 if (DEFINED CONAN_ARGS)
     if (BUILD_TESTS)
