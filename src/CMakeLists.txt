@@ -18,4 +18,3 @@
 include_directories(.)
 
 add_subdirectory(libraries)
-add_subdirectory(apps)

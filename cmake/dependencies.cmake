@@ -48,16 +48,17 @@ endmacro()
 if(BUILD_TESTS)
   include(CTest)
   fetch_library(doctest https://github.com/doctest/doctest.git v2.4.11)
+  include(doctest)
+
   fetch_library(trompeloeil https://github.com/rollbear/trompeloeil.git v48)
 
   file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/doctest_main.cpp "#define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN\n#include <doctest/doctest.h>\n")
   add_library(doctest_main ${CMAKE_CURRENT_BINARY_DIR}/doctest_main.cpp)
   target_link_libraries(doctest_main PUBLIC doctest::doctest)
-
-  include(doctest)
 endif()
 
-if (BUILD_REST_SERVER)
-  find_package(Boost)
-  find_package(OpenSSL)
+fetch_library(rpp https://github.com/victimsnino/ReactivePlusPlus.git v2)
+
+if (BUILD_BACKEND_SERVER)
+  find_package(Boost REQUIRED)
 endif()

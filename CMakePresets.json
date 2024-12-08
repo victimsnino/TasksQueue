@@ -104,12 +104,19 @@
                 "BUILD_TESTS": "ON"
             }
         },
+        {
+            "name": "build-backend-server",
+            "hidden": true,
+            "cacheVariables": {
+                "BUILD_BACKEND_SERVER": "ON"
+            }
+        },
 
 
 
         {
             "name": "ci-build",
-            "inherits": ["build-dir","use-conan", "build-tests"]
+            "inherits": ["build-dir","use-conan", "build-tests", "build-backend-server"]
         },
         {
             "name": "ci-coverage-clang",

@@ -8,14 +8,16 @@ class TasksQueueConan(ConanFile):
 
     options = {
         "with_tests": [True, False],
+        "with_boost": [True, False]
     }
     default_options = {
-        "with_tests": False
+        "with_tests": False,
+        "with_boost": False
     }
 
     def requirements(self):
-        self.requires("boost/1.86.0")
-        self.requires("openssl/3.3.2")
+        if self.options.with_boost:
+            self.requires("boost/1.86.0")
 
     def build_requirements(self):
         if self.options.with_tests:
