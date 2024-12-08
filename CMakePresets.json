@@ -45,10 +45,7 @@
         {
             "name": "flags-darwin",
             "inherits": ["flags-unix"],
-            "hidden": true,
-            "environment": {
-                "CC": "cc ./configure"
-            }
+            "hidden": true
         },
         {
             "name": "flags-windows",
@@ -81,7 +78,7 @@
             "cacheVariables": {
                 "CMAKE_PROJECT_TOP_LEVEL_INCLUDES": "cmake/conan_provider.cmake",
                 "CONAN_ARGS": "",
-                "CONAN_INSTALL_ARGS": "--build=missing;-s:a compiler.cppstd=20;-c tools.system.package_manager:mode=install;-c tools.system.package_manager:sudo=True"
+                "CONAN_INSTALL_ARGS": "--build=missing;-s:a compiler.cppstd=20;-c tools.system.package_manager:mode=install;-c tools.system.package_manager:sudo=True; tools.build:compiler_executables={\"c\":\"cc\",\"cpp\":\"c++\"}"
             }
         },
         {
