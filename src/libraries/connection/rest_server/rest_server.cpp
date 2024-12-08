@@ -22,68 +22,69 @@
 #include <boost/asio/use_awaitable.hpp>
 #include <boost/beast/core.hpp>
 #include <boost/beast/http.hpp>
-#include <rpp/rpp.hpp>
-
-namespace asio  = boost::asio;
-namespace beast = boost::beast;
-namespace http  = beast::http;
-using tcp       = asio::ip::tcp;
+#include <rpp/operators/publish.hpp>
+#include <rpp/operators/ref_count.hpp>
+#include <rpp/sources/create.hpp>
 
 namespace connection::rest_server
 {
     namespace
     {
         template<rpp::constraint::observer TObs>
-        struct server_ctx final : public std::enable_shared_from_this<server_ctx<TObs>>
+        class server_ctx final : public std::enable_shared_from_this<server_ctx<TObs>>
         {
+        public:
             server_ctx(TObs&& observer, const server_config& config)
-                : observer{std::move(observer)}
-                , acceptor{ioc, tcp::endpoint{tcp::v4(), config.port}}
+                : m_observer{std::move(observer)}
+                , m_acceptor{m_ioc, boost::asio::ip::tcp::endpoint{boost::asio::ip::tcp::v4(), config.port}}
+                , m_config{config}
             {
             }
 
-            void schedule_accept(bool first_schedule = true)
+            void run()
             {
-                if (first_schedule)
-                {
-                    observer.set_upstream(rpp::make_callback_disposable([weak = this->weak_from_this()] noexcept {
-                        if (const auto ctx = weak.lock())
-                            ctx->ioc.stop();
-                    }));
-                }
+                m_observer.set_upstream(rpp::make_callback_disposable([weak = this->weak_from_this()] noexcept {
+                    if (const auto ctx = weak.lock())
+                        ctx->m_ioc.stop();
+                }));
+                schedule_accept();
 
-                acceptor.async_accept([weak = this->weak_from_this()](beast::error_code ec, tcp::socket socket) {
+                for (size_t threads = 0; threads < std::max(size_t{1}, config.threads); ++threads)
+                {
+                    std::thread{[ctx = this->shared_from_this()] {
+                        ctx->m_ioc.run();
+                    }}.detach();
+                }
+            }
+
+        private:
+            void schedule_accept()
+            {
+                m_acceptor.async_accept([weak = this->weak_from_this()](boost::beast::error_code ec, boost::asio::ip::tcp::socket socket) {
                     if (const auto ctx = weak.lock())
                     {
                         if (!ec)
                         {
-                            ctx->observer.on_next(std::move(socket));
-                            ctx->schedule_accept(false);
+                            ctx->m_observer.on_next(std::move(socket));
+                            ctx->schedule_accept();
                             return;
                         }
-                        ctx->observer.on_error(std::make_exception_ptr(ec));
+                        ctx->m_observer.on_error(std::make_exception_ptr(ec));
                     }
                 });
             }
 
-            TObs             observer;
-            asio::io_context ioc;
-            tcp::acceptor    acceptor;
+            TObs                           m_observer;
+            boost::asio::io_context        m_ioc;
+            boost::asio::ip::tcp::acceptor m_acceptor;
+            server_config                  m_config;
         };
     } // namespace
 
     rpp::dynamic_observable<boost::asio::ip::tcp::socket> create(const server_config& config)
     {
         return rpp::source::create<boost::asio::ip::tcp::socket>([config]<rpp::constraint::observer TObs>(TObs&& observer) {
-                   auto ctx = std::make_shared<server_ctx<std::decay_t<TObs>>>(std::forward<TObs>(observer), config);
-                   ctx->schedule_accept();
-
-                   for (size_t threads = 0; threads < std::max(size_t{1}, config.threads); ++threads)
-                   {
-                       std::thread{[ctx] {
-                           ctx->ioc.run();
-                       }}.detach();
-                   }
+                   std::make_shared<server_ctx<std::decay_t<TObs>>>(std::forward<TObs>(observer), config)->run();
                })
              | rpp::ops::publish()
              | rpp::ops::ref_count();
