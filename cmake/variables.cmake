@@ -20,6 +20,7 @@ option(BUILD_BACKEND_SERVER "Build backend server." OFF)
 
 if (DEFINED CONAN_INSTALL_ARGS)
     if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+        # https://github.com/conan-io/cmake-conan/issues/577#issuecomment-1781371183
         set(CONAN_INSTALL_ARGS "${CONAN_INSTALL_ARGS}-c tools.build:compiler_executables={\"c\":\"cc\",\"cpp\":\"c++\"}")
     endif()
 endif()
