@@ -49,7 +49,7 @@ namespace connection::rest_server
                 }));
                 schedule_accept();
 
-                for (size_t threads = 0; threads < std::max(size_t{1}, config.threads); ++threads)
+                for (size_t threads = 0; threads < std::max(size_t{1}, m_config.threads); ++threads)
                 {
                     std::thread{[ctx = this->shared_from_this()] {
                         ctx->m_ioc.run();
