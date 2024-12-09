@@ -43,7 +43,7 @@ namespace connection::rest_server
 
             void run()
             {
-                m_observer.set_upstream(rpp::make_callback_disposable([weak = this->weak_from_this()] noexcept {
+                m_observer.set_upstream(rpp::make_callback_disposable([weak = this->weak_from_this()]() noexcept {
                     if (const auto ctx = weak.lock())
                         ctx->m_ioc.stop();
                 }));
