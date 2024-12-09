@@ -15,9 +15,14 @@
 #
 # Home page: https://github.com/victimsnino/TasksQueue/
 
-add_subdirectory(connection)
-add_subdirectory(backend)
-
-if (BUILD_TESTS)
-    add_subdirectory(test_utils)
-endif()
+tq_add_static_library(
+    TARGET_NAME
+        rest_server
+    SOURCES
+        rest_server.cpp
+        rest_server.hpp
+    PUBLIC
+        boost::boost
+        RPP::rpp
+    ADD_TESTS_WITH_MOCK
+)

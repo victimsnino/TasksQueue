@@ -15,9 +15,12 @@
 #
 # Home page: https://github.com/victimsnino/TasksQueue/
 
-add_subdirectory(connection)
-add_subdirectory(backend)
-
-if (BUILD_TESTS)
-    add_subdirectory(test_utils)
-endif()
+tq_add_executable(
+    TARGET_NAME
+        test_app
+    SOURCES
+        test.cpp
+    PRIVATE
+        boost::boost
+        openssl::openssl
+)
