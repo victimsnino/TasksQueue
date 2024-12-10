@@ -38,7 +38,7 @@ TEST_CASE("rest_server provides observable of sockets")
     const auto d = connection::rest_server::create(connection::rest_server::server_config{.threads = 1}).subscribe_with_disposable(mock);
 
     const auto connect_socket = [&] {
-        boost::asio::ip::tcp::endpoint endpoint(boost::asio::ip::tcp::v4(), 8080);
+        boost::asio::ip::tcp::endpoint endpoint(boost::asio::ip::make_address("127.0.0.1"), 8080);
         boost::asio::ip::tcp::socket   socket(io_context);
         socket.connect(endpoint);
         return socket;
