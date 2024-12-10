@@ -27,8 +27,9 @@ namespace connection::rest_server
 {
     struct server_config
     {
-        unsigned short port    = 8080;
-        size_t         threads = std::thread::hardware_concurrency();
+        boost::asio::ip::address ip      = boost::asio::ip::make_address("localhost");
+        unsigned short           port    = 8080;
+        size_t                   threads = std::thread::hardware_concurrency();
     };
 
     rpp::dynamic_observable<boost::asio::ip::tcp::socket> create(const server_config& config);

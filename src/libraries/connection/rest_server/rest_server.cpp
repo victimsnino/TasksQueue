@@ -36,7 +36,7 @@ namespace connection::rest_server
         public:
             server_ctx(TObs&& observer, const server_config& config)
                 : m_observer{std::move(observer)}
-                , m_acceptor{m_ioc, boost::asio::ip::tcp::endpoint{boost::asio::ip::tcp::v4(), config.port}}
+                , m_acceptor{m_ioc, boost::asio::ip::tcp::endpoint{config.ip, config.port}}
                 , m_config{config}
             {
             }
