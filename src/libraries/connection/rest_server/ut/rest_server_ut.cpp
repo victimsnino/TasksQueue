@@ -62,4 +62,5 @@ TEST_CASE("rest_server provides observable of sockets")
 
     io_context.stop();
     d.dispose();
+    std::this_thread::sleep_for(std::chrono::milliseconds{100});
 }

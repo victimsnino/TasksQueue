@@ -21,6 +21,7 @@ tq_add_static_library(
     SOURCES
         rest_server.cpp
         rest_server.hpp
+        server_config.hpp
     PUBLIC
         boost::boost
         RPP::rpp
