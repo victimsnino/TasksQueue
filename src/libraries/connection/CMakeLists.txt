@@ -15,9 +15,6 @@
 #
 # Home page: https://github.com/victimsnino/TasksQueue/
 
-add_subdirectory(connection)
-add_subdirectory(backend)
-
-if (BUILD_TESTS)
-    add_subdirectory(test_utils)
+if (BUILD_BACKEND_SERVER)
+    add_subdirectory(rest_server)
 endif()

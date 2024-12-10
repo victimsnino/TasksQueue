@@ -15,9 +15,12 @@
 #
 # Home page: https://github.com/victimsnino/TasksQueue/
 
-add_subdirectory(connection)
-add_subdirectory(backend)
-
-if (BUILD_TESTS)
-    add_subdirectory(test_utils)
-endif()
+tq_add_interface_library(
+    TARGET_NAME
+        test_utils
+    SOURCES
+        test_utils.hpp
+    INTERFACE
+        trompeloeil::trompeloeil
+        doctest::doctest
+)
