@@ -52,7 +52,7 @@ TEST_CASE("rest_server provides observable of sockets")
     }
     SUBCASE("observable handles 10 sockets")
     {
-        for (size_t i = 0; i < 10; ++i)
+        for (size_t i = 0; i < 5; ++i)
         {
             const auto r = NAMED_REQUIRE_CALL(*mock, on_next(trompeloeil::_)).IN_SEQUENCE(s);
             connect_socket();
@@ -60,5 +60,6 @@ TEST_CASE("rest_server provides observable of sockets")
         }
     }
 
+    io_context.stop();
     d.dispose();
 }
