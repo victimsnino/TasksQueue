@@ -33,3 +33,6 @@
 
 build
 .cache
+
+*.pb.cc
+*.pb.h

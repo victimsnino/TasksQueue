@@ -17,7 +17,9 @@ class TasksQueueConan(ConanFile):
 
     def requirements(self):
         if self.options.with_backend:
-            pass
+            self.requires("grpc/1.67.1")
+            self.requires("protobuf/5.27.0")
+            self.requires("googleapis/cci.20230501")
 
     def build_requirements(self):
         if self.options.with_tests:

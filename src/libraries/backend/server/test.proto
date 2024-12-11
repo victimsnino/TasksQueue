@@ -1,0 +1,13 @@
+package message;
+
+import "google/api/annotations.proto";
+
+message Message {
+    repeated int32 id = 1;
+}
+
+service MessageService {
+    rpc GetMessage(Message) returns (Message) {
+        option (google.api.http) = { get: "/" };
+    }
+}
