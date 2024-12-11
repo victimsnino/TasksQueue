@@ -15,15 +15,17 @@
 #
 # Home page: https://github.com/victimsnino/TasksQueue/
 
+add_subdirectory(interface)
+add_subdirectory(impl)
+
 tq_add_static_library(
     TARGET_NAME
         rest_server
     SOURCES
         rest_server.cpp
         rest_server.hpp
-        server_config.hpp
     PUBLIC
-        boost::boost
+        rest_server_interface
         RPP::rpp
     ADD_TESTS_WITH_MOCK
 )

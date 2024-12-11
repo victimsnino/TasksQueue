@@ -17,9 +17,7 @@
 
 tq_add_interface_library(
     TARGET_NAME
-        data_storage
+        rest_server_interface
     SOURCES
-        data_storage.hpp
-    INTERFACE
-        task
+        server_config.hpp
 )

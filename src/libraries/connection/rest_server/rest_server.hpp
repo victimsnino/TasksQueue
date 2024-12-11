@@ -17,12 +17,14 @@
 
 #pragma once
 
-#include <boost/asio/ip/tcp.hpp>
-#include <rpp/observables/dynamic_observable.hpp>
-
-#include "server_config.hpp"
-
+#include <libraries/connection/rest_server/interface/server_config.hpp>
 namespace connection::rest_server
 {
-    rpp::dynamic_observable<boost::asio::ip::tcp::socket> create(const server_config& config);
+    class server_builder
+    {
+    public:
+        server_builder(const server_config& config);
+
+    private:
+    };
 } // namespace connection::rest_server

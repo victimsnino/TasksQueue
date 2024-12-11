@@ -15,11 +15,15 @@
 #
 # Home page: https://github.com/victimsnino/TasksQueue/
 
-tq_add_interface_library(
+tq_add_static_library(
     TARGET_NAME
-        data_storage
+        rest_server_impl
     SOURCES
-        data_storage.hpp
-    INTERFACE
-        task
+        rest_server_impl.cpp
+        rest_server_impl.hpp
+    PUBLIC
+        rest_server_interface
+        RPP::rpp
+        boost::boost
+    ADD_TESTS_WITH_MOCK
 )

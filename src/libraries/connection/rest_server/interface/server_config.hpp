@@ -17,9 +17,8 @@
 
 #pragma once
 
-#include <boost/asio/ip/tcp.hpp>
-
 #include <cstddef>
+#include <string>
 #include <thread>
 
 
@@ -27,8 +26,8 @@ namespace connection::rest_server
 {
     struct server_config
     {
-        boost::asio::ip::address ip      = boost::asio::ip::make_address("127.0.0.1");
-        unsigned short           port    = 8080;
-        size_t                   threads = std::thread::hardware_concurrency();
+        std::string    ip      = "127.0.0.1";
+        unsigned short port    = 8080;
+        size_t         threads = std::thread::hardware_concurrency();
     };
 } // namespace connection::rest_server

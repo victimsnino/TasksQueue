@@ -14,3 +14,14 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 //
 // Home page: https://github.com/victimsnino/TasksQueue/
+
+#pragma once
+
+#include <boost/asio/ip/tcp.hpp>
+#include <libraries/connection/rest_server/interface/server_config.hpp>
+#include <rpp/observables/dynamic_observable.hpp>
+
+namespace connection::rest_server::impl
+{
+    rpp::dynamic_observable<boost::asio::ip::tcp::socket> create(const server_config& config);
+} // namespace connection::rest_server::impl
