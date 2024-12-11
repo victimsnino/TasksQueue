@@ -34,6 +34,7 @@ project(
 
 include(cmake/variables.cmake)
 include(cmake/dependencies.cmake)
+include(cmake/macros.cmake)
 include(cmake/coverage.cmake)
 
 add_subdirectory(src)
