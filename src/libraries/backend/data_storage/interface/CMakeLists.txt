@@ -15,7 +15,7 @@
 #
 # Home page: https://github.com/victimsnino/TasksQueue/
 
-tq_add_interface_library(data_storage
+tq_add_interface_library(
     TARGET_NAME
         data_storage
     SOURCES

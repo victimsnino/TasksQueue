@@ -8,13 +8,16 @@ class TasksQueueConan(ConanFile):
 
     options = {
         "with_tests": [True, False],
+        "with_backend": [True, False]
     }
     default_options = {
-        "with_tests": False
+        "with_tests": False,
+        "with_backend": False
     }
 
     def requirements(self):
-        pass
+        if self.options.with_backend:
+            pass
 
     def build_requirements(self):
         if self.options.with_tests:
