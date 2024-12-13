@@ -21,7 +21,7 @@
 
 namespace backend::data_storage
 {
-    InMemoryStorage::InMemoryStorage() = default;
+    InMemoryStorage::InMemoryStorage()  = default;
     InMemoryStorage::~InMemoryStorage() = default;
 
     interface::Task InMemoryStorage::CreateTask(const interface::TaskPayload& payload)

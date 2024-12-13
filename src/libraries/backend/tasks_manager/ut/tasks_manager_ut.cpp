@@ -20,7 +20,6 @@
 
 #include <libraries/backend/data_storage/interface/data_storage.hpp>
 #include <libraries/backend/data_storage/interface/data_storage_mock.hpp>
-
 #include <libraries/backend/tasks_manager/tasks_manager.hpp>
 
 TEST_CASE("TasksManager forwards calls to storage")
