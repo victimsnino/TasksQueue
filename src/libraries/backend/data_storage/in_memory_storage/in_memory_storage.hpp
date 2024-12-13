@@ -24,7 +24,8 @@ namespace backend::data_storage
     class InMemoryStorage final : public interface::DataStorage
     {
     public:
-        InMemoryStorage() = default;
+        InMemoryStorage();
+        ~InMemoryStorage() override;
 
         interface::Task              CreateTask(const interface::TaskPayload& payload) override;
         void                         DeleteTask(size_t index) override;

@@ -19,14 +19,9 @@
 #include <doctest/trompeloeil.hpp>
 
 #include <libraries/backend/data_storage/interface/data_storage.hpp>
-#include <libraries/backend/tasks_manager/tasks_manager.hpp>
+#include <libraries/backend/data_storage/interface/data_storage_mock.hpp>
 
-struct MockDataStorage final : public trompeloeil::mock_interface<backend::interface::DataStorage>
-{
-    IMPLEMENT_MOCK1(CreateTask);
-    IMPLEMENT_MOCK1(DeleteTask);
-    IMPLEMENT_CONST_MOCK0(GetTasks);
-};
+#include <libraries/backend/tasks_manager/tasks_manager.hpp>
 
 TEST_CASE("TasksManager forwards calls to storage")
 {

@@ -21,6 +21,9 @@
 
 namespace backend::data_storage
 {
+    InMemoryStorage::InMemoryStorage() = default;
+    InMemoryStorage::~InMemoryStorage() = default;
+
     interface::Task InMemoryStorage::CreateTask(const interface::TaskPayload& payload)
     {
         m_tasks.emplace_back(interface::Task{.id = m_id++, .payload = payload});
