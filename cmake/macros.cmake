@@ -2,7 +2,7 @@
 macro(tq_parse_arguments)
   set(TQ_LIBRARY_OPTIONS ADD_TESTS ADD_TESTS_WITH_MOCK)
   set(TQ_LIBRARY_VALUES TARGET_NAME)
-  set(TQ_LIBRARY_MULTI_VALUES SOURCES PRIVATE PUBLIC INTERFACE)
+  set(TQ_LIBRARY_MULTI_VALUES SOURCES PRIVATE PUBLIC INTERFACE TEST_LIBS)
   cmake_parse_arguments(PARSED "${TQ_LIBRARY_OPTIONS}" "${TQ_LIBRARY_VALUES}" "${TQ_LIBRARY_MULTI_VALUES}" ${ARGN})
 endmacro()
 
@@ -21,8 +21,11 @@ function(tq_handle_library)
           ${PARSED_TARGET_NAME}_ut
         PRIVATE
           ${PARSED_PUBLIC}
+          ${PARSED_PRIVATE}
+          ${PARSED_INTERFACE}
           ${PARSED_TARGET_NAME}
           ${EXTRA}
+          ${PARSED_TEST_LIBS}
           test_utils
         )
   endif()

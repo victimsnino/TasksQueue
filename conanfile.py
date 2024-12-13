@@ -17,7 +17,7 @@ class TasksQueueConan(ConanFile):
 
     def requirements(self):
         if self.options.with_backend:
-            pass
+            self.requires("drogon/1.9.8")
 
     def build_requirements(self):
         if self.options.with_tests:
