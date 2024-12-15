@@ -16,3 +16,4 @@
 # Home page: https://github.com/victimsnino/TasksQueue/
 
 add_subdirectory(backend)
+add_subdirectory(rest)
