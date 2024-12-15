@@ -1,0 +1,10 @@
+tq_add_static_library(
+    TARGET_NAME
+        backend_server_router
+    SOURCES
+        backend_server_router.cpp
+        backend_server_router.hpp
+    PRIVATE
+        boost::boost
+    ADD_TESTS_WITH_MOCK
+)

@@ -38,8 +38,8 @@
             "hidden": true,
             "generator": "Unix Makefiles",
             "cacheVariables": {
-                "CMAKE_CXX_FLAGS": "-fno-rtti -Wall -Werror -Wextra -Wpedantic -Wcast-qual -Wformat=2 -Wundef -Werror=float-equal -Wno-gnu-zero-variadic-macro-arguments -Wno-error=maybe-uninitialized -Wno-error=uninitialized -Wno-unknown-warning-option",
-                "CMAKE_BUILD_TYPE": "Release"
+                "CMAKE_CXX_FLAGS": "-Wall -Werror -Wextra -Wpedantic -Wcast-qual -Wformat=2 -Wundef -Werror=float-equal -Wno-gnu-zero-variadic-macro-arguments -Wno-error=maybe-uninitialized -Wno-error=uninitialized -Wno-unknown-warning-option",
+                "CMAKE_BUILD_TYPE": "Debug"
             }
         },
         {
@@ -215,7 +215,7 @@
         {
             "name": "ci-tests",
             "inherits": ["ci-tests-base"],
-            "configuration": "Release"
+            "configuration": "Debug"
         },
         {
             "name": "ci-sanitize",

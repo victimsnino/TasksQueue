@@ -17,22 +17,31 @@
 
 #pragma once
 
-#include <libraries/backend/data_storage/interface/data_storage.hpp>
+#include <libraries/backend/tasks_manager/tasks_manager.hpp>
 
-namespace backend::data_storage
+#include <memory>
+
+namespace backend
 {
-    class InMemoryStorage final : public interface::DataStorage
+    struct ServerLifetime;
+
+    class StopHandler
     {
     public:
-        InMemoryStorage();
-        ~InMemoryStorage() override;
-
-        interface::Task              CreateTask(const interface::TaskPayload& payload) override;
-        void                         DeleteTask(size_t index) override;
-        std::vector<interface::Task> GetTasks() const override;
+        explicit StopHandler(std::shared_ptr<ServerLifetime>&& ctx);
+        ~StopHandler() noexcept;
+        void Stop();
 
     private:
-        std::vector<interface::Task> m_tasks{};
-        size_t                       m_id{};
+        std::shared_ptr<ServerLifetime> m_ctx;
     };
-} // namespace backend::data_storage
+
+    struct ServerConfig
+    {
+        std::string address = "127.0.0.1";
+        uint16_t    port    = 8080;
+        size_t      threads = 1;
+    };
+
+    StopHandler StartServer(const TasksManager& tasks_manager, const ServerConfig& config);
+} // namespace backend
