@@ -16,23 +16,17 @@
 // Home page: https://github.com/victimsnino/TasksQueue/
 
 #include <doctest/doctest.h>
+#include <doctest/trompeloeil.hpp>
 
 #include <boost/beast.hpp>
-#include <libraries/backend/data_storage/interface/data_storage_mock.hpp>
-#include <libraries/backend/server/backend_server.hpp>
-#include <libraries/backend/tasks_manager/tasks_manager.hpp>
-
-#include <iostream>
-#include <memory>
-#include <thread>
-
+#include <libraries/rest/rest_server/rest_server.hpp>
 
 namespace beast = boost::beast;
 namespace http  = beast::http;
 namespace net   = boost::asio;
 using tcp       = net::ip::tcp;
 
-auto MakeRequest(const std::string& path, const backend::ServerConfig& config)
+auto MakeRequest(const std::string& path, const rest::ServerConfig& config)
 {
     net::io_context ioc;
 
@@ -48,8 +42,6 @@ auto MakeRequest(const std::string& path, const backend::ServerConfig& config)
 
     // Set up an HTTP GET request message
     http::request<http::string_body> req{http::verb::get, path, 10};
-    // req.set(http::field::host, host);
-    // req.set(http::field::user_agent, BOOST_BEAST_VERSION_STRING);
 
     // Send the HTTP request to the remote host
     http::write(stream, req);
@@ -65,11 +57,19 @@ auto MakeRequest(const std::string& path, const backend::ServerConfig& config)
     return res;
 }
 
+struct Routes
+{
+    MAKE_MOCK2(Method, rest::Router::Response(rest::Router::Request, rest::Router::Params));
+};
+
 TEST_CASE("BackendServer provides correct api")
 {
-    auto       mock       = std::make_shared<MockDataStorage>();
-    const auto config     = backend::ServerConfig();
-    auto       stop_token = backend::StartServer(backend::TasksManager{mock}, config);
+    Routes mock;
+    auto   router = rest::Router{};
+    router.AddRoute("/test", http::verb::get, [&mock](const auto& req, const auto& params) { return mock.Method(req, params); });
+
+    const auto config     = rest::ServerConfig();
+    auto       stop_token = rest::StartServer(router, config);
 
     SUBCASE("get /invalid")
     {
@@ -77,24 +77,14 @@ TEST_CASE("BackendServer provides correct api")
         REQUIRE(resp.result() == http::status::not_found);
         REQUIRE(resp.body() == "");
     }
-    SUBCASE("get /tasks for empty")
+
+    SUBCASE("get /test")
     {
-        REQUIRE_CALL(*mock, GetTasks()).RETURN(std::vector<backend::interface::Task>{});
-        const auto resp = MakeRequest("/tasks", config);
+        REQUIRE_CALL(mock, Method(trompeloeil::_, trompeloeil::_)).RETURN(http::response<http::string_body>{http::status::ok, 10});
+
+        const auto resp = MakeRequest("/test", config);
         REQUIRE(resp.result() == http::status::ok);
-        // REQUIRE(resp == "")
-        // REQUIRE(resp == drogon::ContentType::CT_APPLICATION_JSON);
-        // REQUIRE(resp->body() == "[]");
     }
-    // SUBCASE("get /tasks with 1 task")
-    // {
-    //     backend::interface::Task task{.id = 1, .payload = {.name = "name", .description = "description"}};
-    //     REQUIRE_CALL(*mock, GetTasks()).RETURN(std::vector<backend::interface::Task>{task});
-    //     const auto resp = MakeRequest("/tasks");
-    //     REQUIRE(resp->statusCode() == 200);
-    //     REQUIRE(resp->contentType() == drogon::ContentType::CT_APPLICATION_JSON);
-    //     REQUIRE(resp->body() == R"([{"description":"description","id":1,"name":"name"}])");
-    // }
 
     stop_token.Stop();
 }

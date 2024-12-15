@@ -17,11 +17,11 @@
 
 #pragma once
 
-#include <libraries/backend/tasks_manager/tasks_manager.hpp>
+#include <libraries/rest/rest_server_router/rest_server_router.hpp>
 
 #include <memory>
 
-namespace backend
+namespace rest
 {
     struct ServerLifetime;
 
@@ -43,5 +43,5 @@ namespace backend
         size_t      threads = 1;
     };
 
-    StopHandler StartServer(const TasksManager& tasks_manager, const ServerConfig& config);
-} // namespace backend
+    StopHandler StartServer(const rest::Router& router, const ServerConfig& config);
+} // namespace rest

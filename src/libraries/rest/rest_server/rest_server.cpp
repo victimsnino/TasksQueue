@@ -15,12 +15,13 @@
 //
 // Home page: https://github.com/victimsnino/TasksQueue/
 
+#include "rest_server.hpp"
+
 #include <boost/asio/awaitable.hpp>
 #include <boost/asio/co_spawn.hpp>
-#include <boost/beast.hpp>
-#include <boost/regex.hpp>
-
-#include "backend_server.hpp"
+#include <boost/beast/core/flat_buffer.hpp>
+#include <boost/beast/core/tcp_stream.hpp>
+#include <boost/beast/http.hpp>
 
 #include <iostream>
 #include <thread>
@@ -30,87 +31,10 @@ namespace http  = beast::http;
 namespace net   = boost::asio;
 using tcp       = boost::asio::ip::tcp;
 
-namespace backend
+namespace rest
 {
     namespace
     {
-        class Router
-        {
-        public:
-            using Params   = std::unordered_map<std::string, std::string>;
-            using Request  = http::request<http::string_body>;
-            using Response = http::response<http::string_body>;
-            using Handler  = std::function<Response(const Request&, const Params&)>;
-
-        private:
-            struct Route
-            {
-                boost::regex                            pattern;         // Regex pattern for the route
-                std::vector<std::string>                parameter_names; // List of parameter names
-                std::unordered_map<http::verb, Handler> handlers;        // Handlers mapped by HTTP method
-            };
-
-            std::vector<Route> m_routes;
-
-        public:
-            void AddRoute(const std::string& path, http::verb method, Handler handler)
-            {
-                // Replace {:name} with regex group `([^/]+)` and extract parameter names
-                boost::regex param_regex(R"(\{\:([a-zA-Z_][a-zA-Z0-9_]*)\})");
-                std::string  regex_path = boost::regex_replace(path, param_regex, "([^/]+)");
-                boost::regex full_regex("^" + regex_path + "$"); // Ensure full match
-
-                std::vector<std::string> parameter_names;
-                auto                     begin = boost::sregex_iterator(path.begin(), path.end(), param_regex);
-                auto                     end   = boost::sregex_iterator();
-                for (auto it = begin; it != end; ++it)
-                {
-                    parameter_names.push_back((*it)[1]);
-                }
-
-                // Store the route
-                m_routes.push_back({full_regex, parameter_names, {{method, std::move(handler)}}});
-            }
-
-            std::optional<Response> Route(const Request& req) const
-            {
-                for (const auto& route : m_routes)
-                {
-                    boost::smatch match;
-                    std::string   target = req.target();
-                    if (boost::regex_match(target, match, route.pattern))
-                    {
-                        // Extract parameter values
-                        Params params;
-                        for (size_t i = 0; i < route.parameter_names.size(); ++i)
-                        {
-                            params[route.parameter_names[i]] = match[i + 1]; // First group is at index 1
-                        }
-
-                        // Find and call the handler
-                        auto handler_it = route.handlers.find(req.method());
-                        if (handler_it != route.handlers.end())
-                        {
-                            return handler_it->second(req, params);
-                        }
-                        else
-                        {
-                            return Response{http::status::method_not_allowed, req.version()};
-                        }
-                    }
-                }
-                return std::nullopt; // No matching route found
-            }
-        };
-
-        struct ServerContext
-        {
-            ServerContext() = default;
-
-            Router           router;
-            std::atomic_bool started{};
-        };
-
         void LogError(std::exception_ptr e)
         {
             if (e)
@@ -126,6 +50,17 @@ namespace backend
             }
         };
 
+        struct ServerContext
+        {
+            ServerContext(const Router& router)
+                : router(router)
+            {
+            }
+
+            Router           router;
+            std::atomic_bool started{};
+        };
+
         net::awaitable<void> DoSession(beast::tcp_stream stream, std::shared_ptr<ServerContext> ctx)
         {
             // This buffer is required to persist across reads
@@ -136,7 +71,7 @@ namespace backend
             http::request<http::string_body> req;
             co_await http::async_read(stream, buffer, req);
 
-            co_await beast::async_write(stream, boost::beast::http::message_generator{ctx->router.Route(req).value_or(http::response<http::string_body>{http::status::not_found, req.version()})});
+            co_await beast::async_write(stream, boost::beast::http::message_generator{ctx->router.Route(req)});
 
             // Send a TCP shutdown
             stream.socket().shutdown(net::ip::tcp::socket::shutdown_send);
@@ -201,13 +136,10 @@ namespace backend
         }
     }
 
-    StopHandler StartServer(const TasksManager& manager, const ServerConfig& config)
+    StopHandler StartServer(const Router& router, const ServerConfig& config)
     {
-        auto server_ctx = std::make_shared<ServerContext>();
-        server_ctx->router.AddRoute("/tasks", http::verb::get, [manager](const Router::Request& req, const Router::Params&) {
-            manager.GetTasks();
-            return http::response<http::string_body>{http::status::ok, req.version()};
-        });
+        auto server_ctx = std::make_shared<ServerContext>(router);
+
         const auto max_threads     = std::max(size_t{1}, config.threads);
         auto       server_lifetime = std::make_shared<ServerLifetime>(max_threads);
 
@@ -224,4 +156,4 @@ namespace backend
 
         return StopHandler{std::move(server_lifetime)};
     }
-} // namespace backend
+} // namespace rest
