@@ -111,8 +111,8 @@ namespace rest
         {
         }
 
-        boost::asio::io_context   ioc;
-        std::vector<std::jthread> threads{};
+        boost::asio::io_context  ioc;
+        std::vector<std::thread> threads{};
     };
 
     StopHandler::StopHandler(std::shared_ptr<ServerLifetime>&& ctx)
