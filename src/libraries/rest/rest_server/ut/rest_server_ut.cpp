@@ -18,7 +18,6 @@
 #include <doctest/doctest.h>
 
 #include <boost/beast.hpp>
-
 #include <libraries/backend/data_storage/interface/data_storage_mock.hpp>
 #include <libraries/backend/server/backend_server.hpp>
 #include <libraries/backend/tasks_manager/tasks_manager.hpp>
@@ -28,17 +27,17 @@
 #include <thread>
 
 
-namespace beast = boost::beast;    
-namespace http = beast::http;       
-namespace net = boost::asio;        
-using tcp = net::ip::tcp;       
+namespace beast = boost::beast;
+namespace http  = beast::http;
+namespace net   = boost::asio;
+using tcp       = net::ip::tcp;
 
 auto MakeRequest(const std::string& path, const backend::ServerConfig& config)
 {
     net::io_context ioc;
 
     // These objects perform our I/O
-    tcp::resolver resolver(ioc);
+    tcp::resolver     resolver(ioc);
     beast::tcp_stream stream(ioc);
 
     // Look up the domain name
@@ -68,9 +67,9 @@ auto MakeRequest(const std::string& path, const backend::ServerConfig& config)
 
 TEST_CASE("BackendServer provides correct api")
 {
-    auto mock       = std::make_shared<MockDataStorage>();
-    const auto config = backend::ServerConfig();
-    auto stop_token = backend::StartServer(backend::TasksManager{mock}, config);
+    auto       mock       = std::make_shared<MockDataStorage>();
+    const auto config     = backend::ServerConfig();
+    auto       stop_token = backend::StartServer(backend::TasksManager{mock}, config);
 
     SUBCASE("get /invalid")
     {

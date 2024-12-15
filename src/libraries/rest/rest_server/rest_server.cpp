@@ -15,12 +15,12 @@
 //
 // Home page: https://github.com/victimsnino/TasksQueue/
 
-#include "backend_server.hpp"
-
 #include <boost/asio/awaitable.hpp>
 #include <boost/asio/co_spawn.hpp>
 #include <boost/beast.hpp>
 #include <boost/regex.hpp>
+
+#include "backend_server.hpp"
 
 #include <iostream>
 #include <thread>
@@ -37,10 +37,10 @@ namespace backend
         class Router
         {
         public:
-            using Params = std::unordered_map<std::string, std::string>;
-            using Request = http::request<http::string_body>;
+            using Params   = std::unordered_map<std::string, std::string>;
+            using Request  = http::request<http::string_body>;
             using Response = http::response<http::string_body>;
-            using Handler = std::function<Response(const Request&, const Params&)>;
+            using Handler  = std::function<Response(const Request&, const Params&)>;
 
         private:
             struct Route
@@ -203,8 +203,8 @@ namespace backend
 
     StopHandler StartServer(const TasksManager& manager, const ServerConfig& config)
     {
-        auto       server_ctx      = std::make_shared<ServerContext>();
-        server_ctx->router.AddRoute("/tasks", http::verb::get, [manager](const Router::Request& req, const Router::Params&){
+        auto server_ctx = std::make_shared<ServerContext>();
+        server_ctx->router.AddRoute("/tasks", http::verb::get, [manager](const Router::Request& req, const Router::Params&) {
             manager.GetTasks();
             return http::response<http::string_body>{http::status::ok, req.version()};
         });
