@@ -76,13 +76,25 @@ namespace rest
             }
         }
 
+        std::string_view ParseContentType(rest::ContentType content_type)
+        {
+            switch (content_type)
+            {
+            case rest::ContentType::TextPlain: return "text/plain";
+            case rest::ContentType::ApplicationJson: return "application/json";
+
+            case rest::ContentType::Unknown:
+            case rest::ContentType::MAX:
+                return "";
+            }
+        }
 
         rest::ContentType ParseContentType(std::string_view content_type)
         {
-            if (content_type == "text/plain")
-                return rest::ContentType::TextPlain;
-            if (content_type == "application/json")
-                return rest::ContentType::ApplicationJson;
+            using EnumType = std::underlying_type_t<rest::ContentType>;
+            for (auto type = static_cast<EnumType>(rest::ContentType::Unknown); type != static_cast<EnumType>(rest::ContentType::MAX); ++type)
+                if (ParseContentType(static_cast<rest::ContentType>(type)) == content_type)
+                    return static_cast<rest::ContentType>(type);
             return rest::ContentType::Unknown;
         }
 
@@ -91,17 +103,7 @@ namespace rest
             boost::beast::http::response<boost::beast::http::string_body> res;
             res.result(static_cast<uint16_t>(response.status_code));
             res.set(http::field::server, "TasksQueue");
-            switch (response.content_type)
-            {
-            case rest::ContentType::TextPlain:
-                res.set(http::field::content_type, "text/plain");
-                break;
-            case rest::ContentType::ApplicationJson:
-                res.set(http::field::content_type, "application/json");
-                break;
-            default:
-                break;
-            }
+            res.set(http::field::content_type, ParseContentType(response.content_type));
             res.body() = response.body;
             res.prepare_payload();
             return res;

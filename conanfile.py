@@ -22,4 +22,4 @@ class TasksQueueConan(ConanFile):
     def build_requirements(self):
         if self.options.with_tests:
             self.test_requires("doctest/2.4.11")
-            self.test_requires("trompeloeil/48")
+            self.test_requires("trompeloeil/49")

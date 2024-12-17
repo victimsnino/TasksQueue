@@ -26,6 +26,7 @@ namespace rest
         Unknown = 0,
         TextPlain,
         ApplicationJson,
+        MAX
     };
 
     struct Request
