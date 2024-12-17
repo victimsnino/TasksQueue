@@ -21,6 +21,50 @@
 
 namespace rest
 {
+    namespace
+    {
+        std::unordered_map<std::string, std::string> ParseParams(std::string& url)
+        {
+            // Find the start of the query string
+            size_t query_start = url.find('?');
+
+            // Extract path
+            if (query_start == std::string::npos)
+            {
+                return {};
+            }
+
+            std::unordered_map<std::string, std::string> query_params;
+            // Extract query string
+            auto query = std::string_view{url}.substr(query_start + 1);
+
+            auto handle_param = [&query, &query_params](size_t start, size_t count) {
+                auto   param = query.substr(start, count);
+                size_t eq    = param.find('=');
+
+                if (eq != std::string::npos)
+                {
+                    query_params[std::string{param.substr(0, eq)}] = param.substr(eq + 1);
+                }
+                else
+                {
+                    query_params[std::string{param}] = ""; // Parameter without a value
+                }
+            };
+            size_t start = 0, end = 0;
+            while ((end = query.find('&', start)) != std::string::npos)
+            {
+                handle_param(start, end - start);
+                start = end + 1;
+            }
+
+            // Handle the last parameter
+            handle_param(start, query.length() - start);
+
+            url = url.substr(0, query_start);
+            return query_params;
+        }
+    } // namespace
     void Router::AddRoute(const std::string& path, Request::Method method, Router::HandlerWithParams handler)
     {
         if (path.empty() || path[0] != '/')
@@ -57,30 +101,25 @@ namespace rest
         if (req.accept_content_type == ContentType::Unknown)
             return Response{.status_code = Response::Status::BadRequest, .body = "Unsupported or unknown accept content type"};
 
+        std::string url    = req.path;
+        Params      params = ParseParams(url);
         for (const auto& [_, route] : m_routes)
         {
             std::smatch match;
-            if (!std::regex_match(req.path, match, route.pattern))
+            if (!std::regex_match(url, match, route.pattern))
                 continue;
             // Extract parameter values
 
-            Params params;
             if (match.size() != route.parameter_names.size() + 1)
-            {
                 return Response{.status_code = Response::Status::InternalServerError, .body = "Internal server error"};
-            }
 
             for (size_t i = 0; i < route.parameter_names.size(); ++i)
-            {
                 params[route.parameter_names[i]] = match[i + 1]; // First group is at index 1
-            }
 
             // Find and call the handler
             auto handler_it = route.handlers.find(req.method);
             if (handler_it == route.handlers.end())
-            {
                 return Response{.status_code = Response::Status::MethodNotAllowed};
-            }
 
             try
             {
