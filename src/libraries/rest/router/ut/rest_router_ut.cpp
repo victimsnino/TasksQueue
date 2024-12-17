@@ -25,43 +25,57 @@ TEST_CASE("Router provide correct routing")
     rest::Router router{};
     SUBCASE("get empty")
     {
-        REQUIRE(router.Route(rest::Request{.method = rest::Request::Method::GET}).status_code == rest::Response::Status::NotFound);
+        REQUIRE(router.Route(rest::Request{.method = rest::Request::Method::Get}).status_code == rest::Response::Status::NotFound);
     }
 
     SUBCASE("get /test")
     {
-        REQUIRE(router.Route(rest::Request{.method = rest::Request::Method::GET, .path = "/test"}).status_code == rest::Response::Status::NotFound);
+        REQUIRE(router.Route(rest::Request{.method = rest::Request::Method::Get, .path = "/test"}).status_code == rest::Response::Status::NotFound);
     }
 
     SUBCASE("add get /test")
     {
-        router.AddRoute("/test", rest::Request::Method::GET, [](const rest::Request&, const rest::Router::Params&) { return rest::Response{}; });
+        router.AddRoute("/test", rest::Request::Method::Get, [](const rest::Request&, const rest::Router::Params&) { return rest::Response{}; });
         SUBCASE("get /test")
         {
-            REQUIRE(router.Route(rest::Request{.method = rest::Request::Method::GET, .path = "/test"}).status_code == rest::Response::Status::Ok);
+            REQUIRE(router.Route(rest::Request{.method = rest::Request::Method::Get, .path = "/test"}).status_code == rest::Response::Status::Ok);
         }
 
         SUBCASE("get /test_2")
         {
-            REQUIRE(router.Route(rest::Request{.method = rest::Request::Method::GET, .path = "/test_2"}).status_code == rest::Response::Status::NotFound);
+            REQUIRE(router.Route(rest::Request{.method = rest::Request::Method::Get, .path = "/test_2"}).status_code == rest::Response::Status::NotFound);
         }
 
         SUBCASE("post /test")
         {
-            REQUIRE(router.Route(rest::Request{.method = rest::Request::Method::POST, .path = "/test"}).status_code == rest::Response::Status::MethodNotAllowed);
+            REQUIRE(router.Route(rest::Request{.method = rest::Request::Method::Post, .path = "/test"}).status_code == rest::Response::Status::MethodNotAllowed);
         }
         SUBCASE("add post /test")
         {
-            router.AddRoute("/test", rest::Request::Method::POST, [](const rest::Request&, const rest::Router::Params&) { return rest::Response{.status_code = rest::Response::Status::Processing}; });
+            router.AddRoute("/test", rest::Request::Method::Post, [](const rest::Request&, const rest::Router::Params&) { return rest::Response{.status_code = rest::Response::Status::Processing}; });
             SUBCASE("get /test")
             {
-                REQUIRE(router.Route(rest::Request{.method = rest::Request::Method::GET, .path = "/test"}).status_code == rest::Response::Status::Ok);
+                REQUIRE(router.Route(rest::Request{.method = rest::Request::Method::Get, .path = "/test"}).status_code == rest::Response::Status::Ok);
             }
 
             SUBCASE("post /test")
             {
-                REQUIRE(router.Route(rest::Request{.method = rest::Request::Method::POST, .path = "/test"}).status_code == rest::Response::Status::Processing);
+                REQUIRE(router.Route(rest::Request{.method = rest::Request::Method::Post, .path = "/test"}).status_code == rest::Response::Status::Processing);
             }
         }
+    }
+    SUBCASE("exception inside handler")
+    {
+        router.AddRoute("/test", rest::Request::Method::Get, [](const rest::Request&, const rest::Router::Params&) -> rest::Response { throw std::runtime_error("test"); });
+        REQUIRE(router.Route(rest::Request{.method = rest::Request::Method::Get, .path = "/test"}).status_code == rest::Response::Status::InternalServerError);
+    }
+    SUBCASE("pattern with parameter")
+    {
+        router.AddRoute("/test/{:id}/subtest", rest::Request::Method::Get, [](const rest::Request&, const rest::Router::Params& params) {
+            REQUIRE(params.at("id") == "135");
+            return rest::Response{.status_code = rest::Response::Status::Ok};
+        });
+        REQUIRE(router.Route(rest::Request{.method = rest::Request::Method::Get, .path = "/test/135/subtest"}).status_code == rest::Response::Status::Ok);
+        REQUIRE(router.Route(rest::Request{.method = rest::Request::Method::Get, .path = "/test/135"}).status_code == rest::Response::Status::NotFound);
     }
 }

@@ -17,25 +17,9 @@
 
 #pragma once
 
-#include <libraries/backend/data_storage/interface/data_storage.hpp>
-
-#include <shared_mutex>
-
-namespace backend::data_storage
-{
-    class InMemoryStorage final : public DataStorage
-    {
-    public:
-        InMemoryStorage();
-        ~InMemoryStorage() override;
-
-        Task              CreateTask(const TaskPayload& payload) override;
-        void              DeleteTask(size_t index) override;
-        std::vector<Task> GetTasks() const override;
-
-    private:
-        std::vector<Task> m_tasks{};
-        size_t            m_id{};
-        std::shared_mutex m_mutex{};
-    };
-} // namespace backend::data_storage
+#define ENSURE_MSG(expr, msg)          \
+    if (!(expr))                       \
+    {                                  \
+        throw std::runtime_error(msg); \
+    }
+#define ENSURE(expr) ENSURE_MSG(expr, #expr)

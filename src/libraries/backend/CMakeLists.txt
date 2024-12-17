@@ -18,7 +18,3 @@
 add_subdirectory(interface)
 add_subdirectory(tasks_manager)
 add_subdirectory(data_storage)
-
-# if (BUILD_BACKEND_SERVER)
-#     add_subdirectory(server)
-# endif()

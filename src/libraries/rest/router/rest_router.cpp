@@ -17,10 +17,18 @@
 
 #include "rest_router.hpp"
 
+#include <libraries/utils/utils.hpp>
+
 namespace rest
 {
     void Router::AddRoute(const std::string& path, Request::Method method, Router::HandlerWithParams handler)
     {
+        if (path.empty() || path[0] != '/')
+            throw std::invalid_argument("Path must start with '/'");
+
+        if (!handler)
+            throw std::invalid_argument("Handler cannot be null");
+
         // Replace {:name} with regex group `([^/]+)` and extract parameter names
         std::regex  param_regex(R"(\{\:([a-zA-Z_][a-zA-Z0-9_]*)\})");
         std::string regex_path = std::regex_replace(path, param_regex, "([^/]+)");
@@ -43,25 +51,35 @@ namespace rest
         for (const auto& [_, route] : m_routes)
         {
             std::smatch match;
-            if (std::regex_match(req.path, match, route.pattern))
-            {
-                // Extract parameter values
-                Params params;
-                for (size_t i = 0; i < route.parameter_names.size(); ++i)
-                {
-                    params[route.parameter_names[i]] = match[i + 1]; // First group is at index 1
-                }
+            if (!std::regex_match(req.path, match, route.pattern))
+                continue;
+            // Extract parameter values
 
-                // Find and call the handler
-                auto handler_it = route.handlers.find(req.method);
-                if (handler_it != route.handlers.end())
-                {
-                    return handler_it->second(req, params);
-                }
-                else
-                {
-                    return Response{.status_code = Response::Status::MethodNotAllowed};
-                }
+            Params params;
+            if (match.size() != route.parameter_names.size() + 1)
+            {
+                return Response{.status_code = Response::Status::InternalServerError, .body = "Internal server error"};
+            }
+
+            for (size_t i = 0; i < route.parameter_names.size(); ++i)
+            {
+                params[route.parameter_names[i]] = match[i + 1]; // First group is at index 1
+            }
+
+            // Find and call the handler
+            auto handler_it = route.handlers.find(req.method);
+            if (handler_it == route.handlers.end())
+            {
+                return Response{.status_code = Response::Status::MethodNotAllowed};
+            }
+
+            try
+            {
+                return handler_it->second(req, params);
+            }
+            catch (const std::exception& e)
+            {
+                return Response{.status_code = Response::Status::InternalServerError, .body = e.what()};
             }
         }
         return Response{.status_code = Response::Status::NotFound};

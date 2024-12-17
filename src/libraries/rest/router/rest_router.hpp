@@ -33,9 +33,21 @@ namespace rest
 
         Router() = default;
 
+        /**
+         * @brief Adds a new route to the router
+         * @param path The URL path pattern (e.g., "/users/{:id}")
+         * @param method The HTTP method to handle
+         * @param handler The callback to handle matching requests
+         * @throws std::regex_error If the path pattern is invalid
+         */
         void AddRoute(const std::string& path, Request::Method method, std::function<Response(const Request&, const Params&)> handler);
 
-        Response Route(const Request& req) const;
+        /**
+         * @brief Routes an incoming request to the appropriate handler
+         * @param req The incoming HTTP request
+         * @return HTTP response from the matching handler
+         */
+        [[nodiscard]] Response Route(const Request& req) const;
 
     private:
         struct RouteInfo

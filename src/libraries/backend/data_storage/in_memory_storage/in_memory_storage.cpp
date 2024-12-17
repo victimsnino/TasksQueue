@@ -26,13 +26,15 @@ namespace backend::data_storage
 
     Task InMemoryStorage::CreateTask(const TaskPayload& payload)
     {
+        std::lock_guard _{m_mutex};
         m_tasks.emplace_back(Task{.id = m_id++, .payload = payload});
         return m_tasks.back();
     }
 
     void InMemoryStorage::DeleteTask(size_t index)
     {
-        const auto itr = std::ranges::lower_bound(m_tasks, index, std::ranges::less{}, &Task::id);
+        std::lock_guard _{m_mutex};
+        const auto      itr = std::ranges::lower_bound(m_tasks, index, std::ranges::less{}, &Task::id);
         if (itr == m_tasks.end() || itr->id != index)
             return;
 
@@ -41,6 +43,7 @@ namespace backend::data_storage
 
     std::vector<Task> InMemoryStorage::GetTasks() const
     {
+        std::shared_lock _{m_mutex};
         return m_tasks;
     }
 

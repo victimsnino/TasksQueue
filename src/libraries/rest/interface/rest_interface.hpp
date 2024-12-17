@@ -23,16 +23,22 @@ namespace rest
 {
     enum class ContentType : uint8_t
     {
-        PLAIN,
-        JSON
+        Unknown,
+        TextPlain,
+        ApplicationJson,
     };
 
     struct Request
     {
         enum class Method : uint8_t
         {
-            GET,
-            POST
+            Get,
+            Post,
+            Put,
+            Delete,
+            Patch,
+            Head,
+            Options,
         };
 
         const Method      method{};
