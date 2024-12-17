@@ -23,7 +23,5 @@ tq_add_static_library(
         rest_router.hpp
     PUBLIC
         rest_interface
-    PRIVATE
-        utils
     ADD_TESTS_WITH_MOCK
 )

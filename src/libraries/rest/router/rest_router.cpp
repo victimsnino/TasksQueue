@@ -17,8 +17,6 @@
 
 #include "rest_router.hpp"
 
-#include <libraries/utils/utils.hpp>
-
 namespace rest
 {
     namespace
