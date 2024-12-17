@@ -22,10 +22,10 @@
 #include <memory>
 #include <vector>
 
-namespace backend::interface
+namespace backend
 {
     struct DataStorage;
-} // namespace backend::interface
+} // namespace backend
 
 namespace backend
 {

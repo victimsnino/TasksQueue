@@ -17,57 +17,50 @@
 
 #include <doctest/doctest.h>
 
-#include <libraries/rest/rest_server_router/rest_server_router.hpp>
+#include <libraries/rest/router/rest_router.hpp>
 
-auto CreateRequest(boost::beast::http::verb method, std::string path)
-{
-    auto req = boost::beast::http::request<boost::beast::http::string_body>{};
-    req.target(path);
-    req.method(method);
-    return req;
-}
 
 TEST_CASE("Router provide correct routing")
 {
     rest::Router router{};
     SUBCASE("get empty")
     {
-        REQUIRE(router.Route(CreateRequest(boost::beast::http::verb::get, {})).result() == boost::beast::http::status::not_found);
+        REQUIRE(router.Route(rest::Request{.method = rest::Request::Method::GET}).status_code == rest::Response::Status::NotFound);
     }
 
     SUBCASE("get /test")
     {
-        REQUIRE(router.Route(CreateRequest(boost::beast::http::verb::get, "/test")).result() == boost::beast::http::status::not_found);
+        REQUIRE(router.Route(rest::Request{.method = rest::Request::Method::GET, .path = "/test"}).status_code == rest::Response::Status::NotFound);
     }
 
     SUBCASE("add get /test")
     {
-        router.AddRoute("/test", boost::beast::http::verb::get, [](const auto&, const auto&) { return boost::beast::http::response<boost::beast::http::string_body>{}; });
+        router.AddRoute("/test", rest::Request::Method::GET, [](const rest::Request&, const rest::Router::Params&) { return rest::Response{}; });
         SUBCASE("get /test")
         {
-            REQUIRE(router.Route(CreateRequest(boost::beast::http::verb::get, "/test")).result() == boost::beast::http::status::ok);
+            REQUIRE(router.Route(rest::Request{.method = rest::Request::Method::GET, .path = "/test"}).status_code == rest::Response::Status::Ok);
         }
 
         SUBCASE("get /test_2")
         {
-            REQUIRE(router.Route(CreateRequest(boost::beast::http::verb::get, "/test_2")).result() == boost::beast::http::status::not_found);
+            REQUIRE(router.Route(rest::Request{.method = rest::Request::Method::GET, .path = "/test_2"}).status_code == rest::Response::Status::NotFound);
         }
 
         SUBCASE("post /test")
         {
-            REQUIRE(router.Route(CreateRequest(boost::beast::http::verb::post, "/test")).result() == boost::beast::http::status::method_not_allowed);
+            REQUIRE(router.Route(rest::Request{.method = rest::Request::Method::POST, .path = "/test"}).status_code == rest::Response::Status::MethodNotAllowed);
         }
         SUBCASE("add post /test")
         {
-            router.AddRoute("/test", boost::beast::http::verb::post, [](const auto& req, const auto&) { return boost::beast::http::response<boost::beast::http::string_body>{boost::beast::http::status::processing, req.version()}; });
+            router.AddRoute("/test", rest::Request::Method::POST, [](const rest::Request&, const rest::Router::Params&) { return rest::Response{.status_code = rest::Response::Status::Processing}; });
             SUBCASE("get /test")
             {
-                REQUIRE(router.Route(CreateRequest(boost::beast::http::verb::get, "/test")).result() == boost::beast::http::status::ok);
+                REQUIRE(router.Route(rest::Request{.method = rest::Request::Method::GET, .path = "/test"}).status_code == rest::Response::Status::Ok);
             }
 
             SUBCASE("post /test")
             {
-                REQUIRE(router.Route(CreateRequest(boost::beast::http::verb::post, "/test")).result() == boost::beast::http::status::processing);
+                REQUIRE(router.Route(rest::Request{.method = rest::Request::Method::POST, .path = "/test"}).status_code == rest::Response::Status::Processing);
             }
         }
     }

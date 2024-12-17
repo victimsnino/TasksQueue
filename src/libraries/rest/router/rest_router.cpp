@@ -15,20 +15,20 @@
 //
 // Home page: https://github.com/victimsnino/TasksQueue/
 
-#include "rest_server_router.hpp"
+#include "rest_router.hpp"
 
 namespace rest
 {
-    void Router::AddRoute(const std::string& path, boost::beast::http::verb method, Router::HandlerWithParams handler)
+    void Router::AddRoute(const std::string& path, Request::Method method, Router::HandlerWithParams handler)
     {
         // Replace {:name} with regex group `([^/]+)` and extract parameter names
-        boost::regex param_regex(R"(\{\:([a-zA-Z_][a-zA-Z0-9_]*)\})");
-        std::string  regex_path = boost::regex_replace(path, param_regex, "([^/]+)");
-        boost::regex full_regex("^" + regex_path + "$"); // Ensure full match
+        std::regex  param_regex(R"(\{\:([a-zA-Z_][a-zA-Z0-9_]*)\})");
+        std::string regex_path = std::regex_replace(path, param_regex, "([^/]+)");
+        std::regex  full_regex("^" + regex_path + "$"); // Ensure full match
 
         std::vector<std::string> parameter_names;
-        auto                     begin = boost::sregex_iterator(path.begin(), path.end(), param_regex);
-        auto                     end   = boost::sregex_iterator();
+        auto                     begin = std::sregex_iterator(path.begin(), path.end(), param_regex);
+        auto                     end   = std::sregex_iterator();
         for (auto it = begin; it != end; ++it)
             parameter_names.push_back((*it)[1]);
 
@@ -38,13 +38,12 @@ namespace rest
         info.handlers[method] = std::move(handler);
     }
 
-    Router::Response Router::Route(const Router::Request& req) const
+    Response Router::Route(const Request& req) const
     {
         for (const auto& [_, route] : m_routes)
         {
-            boost::smatch match;
-            std::string   target = req.target();
-            if (boost::regex_match(target, match, route.pattern))
+            std::smatch match;
+            if (std::regex_match(req.path, match, route.pattern))
             {
                 // Extract parameter values
                 Params params;
@@ -54,18 +53,18 @@ namespace rest
                 }
 
                 // Find and call the handler
-                auto handler_it = route.handlers.find(req.method());
+                auto handler_it = route.handlers.find(req.method);
                 if (handler_it != route.handlers.end())
                 {
                     return handler_it->second(req, params);
                 }
                 else
                 {
-                    return Response{boost::beast::http::status::method_not_allowed, req.version()};
+                    return Response{.status_code = Response::Status::MethodNotAllowed};
                 }
             }
         }
-        return Response{boost::beast::http::status::not_found, req.version()};
+        return Response{.status_code = Response::Status::NotFound};
     }
 
 } // namespace rest

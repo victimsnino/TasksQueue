@@ -21,7 +21,7 @@
 
 #include <vector>
 
-namespace backend::interface
+namespace backend
 {
     struct DataStorage
     {
@@ -31,4 +31,4 @@ namespace backend::interface
         virtual void              DeleteTask(size_t index)               = 0;
         virtual std::vector<Task> GetTasks() const                       = 0;
     };
-} // namespace backend::interface
+} // namespace backend

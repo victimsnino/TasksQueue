@@ -20,7 +20,7 @@
 #include <cstddef>
 #include <string>
 
-namespace backend::interface
+namespace backend
 {
     struct TaskPayload
     {
@@ -37,4 +37,4 @@ namespace backend::interface
 
         auto operator<=>(const Task& rhs) const = default;
     };
-} // namespace backend::interface
+} // namespace backend

@@ -28,8 +28,8 @@ TEST_CASE("TasksManager forwards calls to storage")
     backend::TasksManager manager{mock};
     trompeloeil::sequence s{};
 
-    backend::interface::TaskPayload payload{.name = "name", .description = "description"};
-    backend::interface::Task        task{.id = 123, .payload = {.name = "name2", .description = "description2"}};
+    backend::TaskPayload payload{.name = "name", .description = "description"};
+    backend::Task        task{.id = 123, .payload = {.name = "name2", .description = "description2"}};
 
     SUBCASE("CreateTask")
     {

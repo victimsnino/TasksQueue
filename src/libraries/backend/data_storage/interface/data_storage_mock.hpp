@@ -22,7 +22,7 @@
 
 #include <libraries/backend/data_storage/interface/data_storage.hpp>
 
-struct MockDataStorage final : public trompeloeil::mock_interface<backend::interface::DataStorage>
+struct MockDataStorage final : public trompeloeil::mock_interface<backend::DataStorage>
 {
     IMPLEMENT_MOCK1(CreateTask);
     IMPLEMENT_MOCK1(DeleteTask);

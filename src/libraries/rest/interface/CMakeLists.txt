@@ -15,13 +15,10 @@
 #
 # Home page: https://github.com/victimsnino/TasksQueue/
 
-tq_add_static_library(
+tq_add_interface_library(
     TARGET_NAME
-        rest_router
-    SOURCES
-        rest_router.cpp
-        rest_router.hpp
-    PUBLIC
         rest_interface
-    ADD_TESTS_WITH_MOCK
+    SOURCES
+        rest_interface.hpp
+    INTERFACE
 )
