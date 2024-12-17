@@ -52,7 +52,7 @@ namespace rest
 
         struct ServerContext
         {
-            ServerContext(Router&& router)
+            explicit ServerContext(Router&& router)
                 : router(std::move(router))
             {
             }
@@ -163,7 +163,7 @@ namespace rest
         std::vector<std::thread> threads{};
     };
 
-    StopHandler::StopHandler(std::shared_ptr<ServerLifetime>&& ctx)
+    StopHandler::StopHandler(std::shared_ptr<ServerLifetime> ctx)
         : m_ctx{std::move(ctx)}
     {
     }
@@ -173,7 +173,7 @@ namespace rest
         Stop();
     }
 
-    void StopHandler::Stop()
+    void StopHandler::Stop() const
     {
         if (!m_ctx->ioc.stopped())
         {

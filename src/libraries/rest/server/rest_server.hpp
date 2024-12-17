@@ -28,9 +28,9 @@ namespace rest
     class StopHandler
     {
     public:
-        explicit StopHandler(std::shared_ptr<ServerLifetime>&& ctx);
+        explicit StopHandler(std::shared_ptr<ServerLifetime> ctx);
         ~StopHandler() noexcept;
-        void Stop();
+        void Stop() const;
 
     private:
         std::shared_ptr<ServerLifetime> m_ctx;
