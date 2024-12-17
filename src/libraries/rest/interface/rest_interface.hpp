@@ -23,7 +23,7 @@ namespace rest
 {
     enum class ContentType : uint8_t
     {
-        Unknown,
+        Unknown = 0,
         TextPlain,
         ApplicationJson,
     };
@@ -32,6 +32,7 @@ namespace rest
     {
         enum class Method : uint8_t
         {
+            Unknown = 0,
             Get,
             Post,
             Put,
@@ -127,7 +128,7 @@ namespace rest
 
         Status status_code = Status::Ok;
 
-        ContentType content_type{};
+        ContentType content_type = ContentType::TextPlain;
         std::string body{};
     };
 } // namespace rest

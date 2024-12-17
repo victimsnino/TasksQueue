@@ -43,5 +43,5 @@ namespace rest
         size_t      threads = 1;
     };
 
-    StopHandler StartServer(const rest::Router& router, const ServerConfig& config);
+    StopHandler StartServer(rest::Router&& router, const ServerConfig& config);
 } // namespace rest

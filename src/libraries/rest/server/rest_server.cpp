@@ -52,14 +52,60 @@ namespace rest
 
         struct ServerContext
         {
-            ServerContext(const Router& router)
-                : router(router)
+            ServerContext(Router&& router)
+                : router(std::move(router))
             {
             }
 
             Router           router;
             std::atomic_bool started{};
         };
+
+        rest::Request::Method ParseMethod(http::verb method)
+        {
+            switch (method)
+            {
+            case http::verb::get: return rest::Request::Method::Get;
+            case http::verb::post: return rest::Request::Method::Post;
+            case http::verb::put: return rest::Request::Method::Put;
+            case http::verb::delete_: return rest::Request::Method::Delete;
+            case http::verb::patch: return rest::Request::Method::Patch;
+            case http::verb::head: return rest::Request::Method::Head;
+            case http::verb::options: return rest::Request::Method::Options;
+            default: return rest::Request::Method::Unknown;
+            }
+        }
+
+
+        rest::ContentType ParseContentType(std::string_view content_type)
+        {
+            if (content_type == "text/plain")
+                return rest::ContentType::TextPlain;
+            if (content_type == "application/json")
+                return rest::ContentType::ApplicationJson;
+            return rest::ContentType::Unknown;
+        }
+
+        boost::beast::http::response<boost::beast::http::string_body> CreateResponse(const rest::Response& response)
+        {
+            boost::beast::http::response<boost::beast::http::string_body> res;
+            res.result(static_cast<uint16_t>(response.status_code));
+            res.set(http::field::server, "TasksQueue");
+            switch (response.content_type)
+            {
+            case rest::ContentType::TextPlain:
+                res.set(http::field::content_type, "text/plain");
+                break;
+            case rest::ContentType::ApplicationJson:
+                res.set(http::field::content_type, "application/json");
+                break;
+            default:
+                break;
+            }
+            res.body() = response.body;
+            res.prepare_payload();
+            return res;
+        }
 
         net::awaitable<void> DoSession(beast::tcp_stream stream, std::shared_ptr<ServerContext> ctx)
         {
@@ -71,7 +117,7 @@ namespace rest
             http::request<http::string_body> req;
             co_await http::async_read(stream, buffer, req);
 
-            co_await beast::async_write(stream, boost::beast::http::message_generator{ctx->router.Route(req)});
+            co_await beast::async_write(stream, boost::beast::http::message_generator{CreateResponse(ctx->router.Route({.method = ParseMethod(req.method()), .path = req.target(), .body = req.body(), .content_type = ParseContentType(req[http::field::content_type])}))});
 
             // Send a TCP shutdown
             stream.socket().shutdown(net::ip::tcp::socket::shutdown_send);
@@ -136,9 +182,9 @@ namespace rest
         }
     }
 
-    StopHandler StartServer(const Router& router, const ServerConfig& config)
+    StopHandler StartServer(Router&& router, const ServerConfig& config)
     {
-        auto server_ctx = std::make_shared<ServerContext>(router);
+        auto server_ctx = std::make_shared<ServerContext>(std::move(router));
 
         const auto max_threads     = std::max(size_t{1}, config.threads);
         auto       server_lifetime = std::make_shared<ServerLifetime>(max_threads);

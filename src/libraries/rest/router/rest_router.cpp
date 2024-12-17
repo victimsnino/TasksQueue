@@ -48,6 +48,15 @@ namespace rest
 
     Response Router::Route(const Request& req) const
     {
+        if (req.content_type == ContentType::Unknown)
+            return Response{.status_code = Response::Status::BadRequest, .body = "Unsupported or unknown content type"};
+
+        if (req.method == Request::Method::Unknown)
+            return Response{.status_code = Response::Status::BadRequest, .body = "Unknown method"};
+
+        if (req.accept_content_type == ContentType::Unknown)
+            return Response{.status_code = Response::Status::BadRequest, .body = "Unsupported or unknown accept content type"};
+
         for (const auto& [_, route] : m_routes)
         {
             std::smatch match;
