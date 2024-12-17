@@ -24,22 +24,22 @@ namespace backend::data_storage
     InMemoryStorage::InMemoryStorage()  = default;
     InMemoryStorage::~InMemoryStorage() = default;
 
-    interface::Task InMemoryStorage::CreateTask(const interface::TaskPayload& payload)
+    Task InMemoryStorage::CreateTask(const TaskPayload& payload)
     {
-        m_tasks.emplace_back(interface::Task{.id = m_id++, .payload = payload});
+        m_tasks.emplace_back(Task{.id = m_id++, .payload = payload});
         return m_tasks.back();
     }
 
     void InMemoryStorage::DeleteTask(size_t index)
     {
-        const auto itr = std::ranges::lower_bound(m_tasks, index, std::ranges::less{}, &interface::Task::id);
+        const auto itr = std::ranges::lower_bound(m_tasks, index, std::ranges::less{}, &Task::id);
         if (itr == m_tasks.end() || itr->id != index)
             return;
 
         m_tasks.erase(itr);
     }
 
-    std::vector<interface::Task> InMemoryStorage::GetTasks() const
+    std::vector<Task> InMemoryStorage::GetTasks() const
     {
         return m_tasks;
     }

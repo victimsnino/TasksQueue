@@ -21,18 +21,18 @@
 
 namespace backend::data_storage
 {
-    class InMemoryStorage final : public interface::DataStorage
+    class InMemoryStorage final : public DataStorage
     {
     public:
         InMemoryStorage();
         ~InMemoryStorage() override;
 
-        interface::Task              CreateTask(const interface::TaskPayload& payload) override;
-        void                         DeleteTask(size_t index) override;
-        std::vector<interface::Task> GetTasks() const override;
+        Task              CreateTask(const TaskPayload& payload) override;
+        void              DeleteTask(size_t index) override;
+        std::vector<Task> GetTasks() const override;
 
     private:
-        std::vector<interface::Task> m_tasks{};
-        size_t                       m_id{};
+        std::vector<Task> m_tasks{};
+        size_t            m_id{};
     };
 } // namespace backend::data_storage
