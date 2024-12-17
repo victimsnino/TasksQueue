@@ -23,43 +23,33 @@ namespace rest
     {
         std::unordered_map<std::string, std::string> ParseParams(std::string& url)
         {
-            // Find the start of the query string
             size_t query_start = url.find('?');
-
-            // Extract path
             if (query_start == std::string::npos)
-            {
                 return {};
-            }
 
-            std::unordered_map<std::string, std::string> query_params;
-            // Extract query string
             auto query = std::string_view{url}.substr(query_start + 1);
 
-            auto handle_param = [&query, &query_params](size_t start, size_t count) {
-                auto   param = query.substr(start, count);
-                size_t eq    = param.find('=');
+            std::unordered_map<std::string, std::string> query_params;
+            size_t                                       start = 0;
+            while (true)
+            {
+                auto end   = query.find('&', start);
+                auto param = query.substr(start, end == std::string::npos ? end : end - start);
+                auto eq    = param.find('=');
 
                 if (eq != std::string::npos)
-                {
                     query_params[std::string{param.substr(0, eq)}] = param.substr(eq + 1);
-                }
                 else
-                {
                     query_params[std::string{param}] = ""; // Parameter without a value
-                }
-            };
-            size_t start = 0, end = 0;
-            while ((end = query.find('&', start)) != std::string::npos)
-            {
-                handle_param(start, end - start);
+
+                if (end == std::string::npos)
+                    break;
+
                 start = end + 1;
             }
 
-            // Handle the last parameter
-            handle_param(start, query.length() - start);
+            url.resize(query_start);
 
-            url = url.substr(0, query_start);
             return query_params;
         }
     } // namespace

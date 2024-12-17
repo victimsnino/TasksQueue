@@ -90,6 +90,14 @@ TEST_CASE("Router provide correct routing")
     {
         REQUIRE(router.Route(rest::Request{.method = rest::Request::Method::Unknown, .path = "/test", .content_type = rest::ContentType::TextPlain}).status_code == rest::Response::Status::BadRequest);
     }
+    SUBCASE("query params")
+    {
+        router.AddRoute("/test/", rest::Request::Method::Get, [](const rest::Request&, const rest::Router::Params& params) {
+            REQUIRE(params.at("key") == "value");
+            return rest::Response{.status_code = rest::Response::Status::Ok};
+        });
+        REQUIRE(router.Route(rest::Request{.method = rest::Request::Method::Get, .path = "/test/?key=value", .content_type = rest::ContentType::TextPlain}).status_code == rest::Response::Status::Ok);
+    }
     SUBCASE("query params and path params")
     {
         router.AddRoute("/test/{:id}/subtest", rest::Request::Method::Get, [](const rest::Request&, const rest::Router::Params& params) {
