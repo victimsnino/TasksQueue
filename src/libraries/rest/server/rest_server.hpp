@@ -17,7 +17,7 @@
 
 #pragma once
 
-#include <libraries/rest/rest_server_router/rest_server_router.hpp>
+#include <libraries/rest/router/rest_router.hpp>
 
 #include <memory>
 

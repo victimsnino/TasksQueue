@@ -19,7 +19,7 @@
 #include <doctest/trompeloeil.hpp>
 
 #include <boost/beast.hpp>
-#include <libraries/rest/rest_server/rest_server.hpp>
+#include <libraries/rest/server/rest_server.hpp>
 
 namespace beast = boost::beast;
 namespace http  = beast::http;

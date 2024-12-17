@@ -17,10 +17,10 @@
 
 tq_add_static_library(
     TARGET_NAME
-        rest_server_router
+        rest_router
     SOURCES
-        rest_server_router.cpp
-        rest_server_router.hpp
+        rest_router.cpp
+        rest_router.hpp
     PUBLIC
         boost::boost
     ADD_TESTS_WITH_MOCK

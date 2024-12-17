@@ -25,6 +25,6 @@ tq_add_static_library(
     PRIVATE
         boost::boost
     PUBLIC
-        rest_server_router
+        rest_router
     ADD_TESTS_WITH_MOCK
 )

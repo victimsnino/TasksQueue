@@ -16,6 +16,6 @@
 # Home page: https://github.com/victimsnino/TasksQueue/
 
 if (BUILD_BACKEND_SERVER)
-    add_subdirectory(rest_server)
-    add_subdirectory(rest_server_router)
+    add_subdirectory(server)
+    add_subdirectory(router)
 endif()
