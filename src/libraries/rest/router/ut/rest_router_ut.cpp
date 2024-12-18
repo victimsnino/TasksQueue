@@ -42,7 +42,7 @@ TEST_CASE("Router provide correct routing")
 
     SUBCASE("add get /test")
     {
-        router.AddRoute("/test", rest::Request::Method::Get, [](const rest::Request&, const rest::Router::Params&) { return rest::Response{}; });
+        router.AddRoute("/test", rest::Request::Method::Get, [](const rest::Request&, const rest::Router::Params&) { return rest::Response{.status_code = rest::Response::Status::Ok, .content_type = rest::ContentType::TextPlain}; });
         SUBCASE("get /test")
         {
             REQUIRE(router.Route(rest::Request{.method = rest::Request::Method::Get, .path = "/test", .content_type = rest::ContentType::TextPlain}).status_code == rest::Response::Status::Ok);
@@ -59,7 +59,7 @@ TEST_CASE("Router provide correct routing")
         }
         SUBCASE("add post /test")
         {
-            router.AddRoute("/test", rest::Request::Method::Post, [](const rest::Request&, const rest::Router::Params&) { return rest::Response{.status_code = rest::Response::Status::Processing}; });
+            router.AddRoute("/test", rest::Request::Method::Post, [](const rest::Request&, const rest::Router::Params&) { return rest::Response{.status_code = rest::Response::Status::Processing, .content_type = rest::ContentType::TextPlain}; });
             SUBCASE("get /test")
             {
                 REQUIRE(router.Route(rest::Request{.method = rest::Request::Method::Get, .path = "/test", .content_type = rest::ContentType::TextPlain}).status_code == rest::Response::Status::Ok);
@@ -80,7 +80,7 @@ TEST_CASE("Router provide correct routing")
     {
         router.AddRoute("/test/{:id}/subtest", rest::Request::Method::Get, [](const rest::Request&, const rest::Router::Params& params) {
             REQUIRE(params.at("id") == "135");
-            return rest::Response{.status_code = rest::Response::Status::Ok};
+            return rest::Response{.status_code = rest::Response::Status::Ok, .content_type = rest::ContentType::TextPlain};
         });
         REQUIRE(router.Route(rest::Request{.method = rest::Request::Method::Get, .path = "/test/135/subtest", .content_type = rest::ContentType::TextPlain}).status_code == rest::Response::Status::Ok);
         REQUIRE(router.Route(rest::Request{.method = rest::Request::Method::Get, .path = "/test/135", .content_type = rest::ContentType::TextPlain}).status_code == rest::Response::Status::NotFound);
@@ -89,7 +89,7 @@ TEST_CASE("Router provide correct routing")
     {
         router.AddRoute("/test/", rest::Request::Method::Get, [](const rest::Request&, const rest::Router::Params& params) {
             REQUIRE(params.at("key") == "value");
-            return rest::Response{.status_code = rest::Response::Status::Ok};
+            return rest::Response{.status_code = rest::Response::Status::Ok, .content_type = rest::ContentType::TextPlain};
         });
         REQUIRE(router.Route(rest::Request{.method = rest::Request::Method::Get, .path = "/test/?key=value", .content_type = rest::ContentType::TextPlain}).status_code == rest::Response::Status::Ok);
     }
@@ -99,7 +99,7 @@ TEST_CASE("Router provide correct routing")
             REQUIRE(params.at("key") == "value");
             REQUIRE(params.at("key2") == "value2");
             REQUIRE(params.at("id") == "23");
-            return rest::Response{.status_code = rest::Response::Status::Ok};
+            return rest::Response{.status_code = rest::Response::Status::Ok, .content_type = rest::ContentType::TextPlain};
         });
         REQUIRE(router.Route(rest::Request{.method = rest::Request::Method::Get, .path = "/test/23/subtest?key=value&key2=value2", .content_type = rest::ContentType::TextPlain}).status_code == rest::Response::Status::Ok);
     }

@@ -65,8 +65,8 @@ namespace rest
         template<Serializable T>
         struct SerializableResponse
         {
-            const Response::Status status_code;
-            const T                body;
+            const NotDefaultConstructible<Response::Status> status_code;
+            const NotDefaultConstructible<T>                body;
         };
 
         Router() = default;
@@ -91,18 +91,18 @@ namespace rest
                 }
                 catch (const std::exception& e)
                 {
-                    return Response{.status_code = Response::Status::BadRequest, .body = e.what()};
+                    return Response{.status_code = Response::Status::BadRequest, .body = e.what(), .content_type = ContentType::TextPlain};
                 }
 
                 const auto  res = handler(body.value(), params);
                 std::string body_str{};
                 try
                 {
-                    body_str = Serialize(res.body, req.accept_content_type);
+                    body_str = Serialize(res.body.get(), req.accept_content_type);
                 }
                 catch (const std::exception& e)
                 {
-                    return Response{.status_code = Response::Status::BadRequest, .body = e.what()};
+                    return Response{.status_code = Response::Status::BadRequest, .body = e.what(), .content_type = ContentType::TextPlain};
                 }
                 return Response{.status_code = res.status_code, .body = std::move(body_str), .content_type = req.accept_content_type};
             });

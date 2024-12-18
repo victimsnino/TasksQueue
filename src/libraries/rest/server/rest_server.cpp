@@ -79,7 +79,7 @@ namespace rest
         boost::beast::http::response<boost::beast::http::string_body> CreateResponse(const rest::Response& response)
         {
             boost::beast::http::response<boost::beast::http::string_body> res;
-            res.result(static_cast<uint16_t>(response.status_code));
+            res.result(static_cast<uint16_t>(response.status_code.get()));
             res.set(http::field::server, "TasksQueue");
             res.set(http::field::content_type, ParseContentType(response.content_type));
             res.body() = response.body;
@@ -91,15 +91,15 @@ namespace rest
         {
             const auto method = ParseMethod(req.method());
             if (!method)
-                return Response{.status_code = Response::Status::MethodNotAllowed, .body = "Unsupported or unknown method"};
+                return Response{.status_code = Response::Status::MethodNotAllowed, .body = "Unsupported or unknown method", .content_type = rest::ContentType::TextPlain};
 
             const auto content_type = ParseContentType(req[http::field::content_type]);
             if (!content_type)
-                return Response{.status_code = Response::Status::BadRequest, .body = "Unsupported or unknown content type"};
+                return Response{.status_code = Response::Status::BadRequest, .body = "Unsupported or unknown content type", .content_type = rest::ContentType::TextPlain};
 
             const auto accept_content_type = ParseContentType(req[http::field::accept]);
             if (!accept_content_type)
-                return Response{.status_code = Response::Status::BadRequest, .body = "Unsupported or unknown accept content type"};
+                return Response{.status_code = Response::Status::BadRequest, .body = "Unsupported or unknown accept content type", .content_type = rest::ContentType::TextPlain};
 
             return router.Route({.method = method.value(), .path = req.target(), .body = req.body(), .content_type = content_type.value(), .accept_content_type = accept_content_type.value()});
         }

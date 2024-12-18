@@ -44,6 +44,8 @@ namespace rest
 
         operator const T &() const { return m_value; }
 
+        const T& get() const { return m_value; }
+
     private:
         T m_value;
     };
@@ -144,10 +146,10 @@ namespace rest
             NetworkAuthenticationRequired = 511
         };
 
-        Status      status_code = Status::Ok;
-        std::string body{};
+        NotDefaultConstructible<Status> status_code;
+        std::string                     body{};
 
-        ContentType content_type = ContentType::TextPlain;
+        NotDefaultConstructible<ContentType> content_type;
     };
 
     std::string_view                 ParseContentType(rest::ContentType content_type);
