@@ -34,8 +34,8 @@ namespace backend::data_storage
         std::vector<Task> GetTasks() const override;
 
     private:
+        mutable std::shared_mutex m_mutex{};
         std::vector<Task> m_tasks{};
         size_t            m_id{};
-        std::shared_mutex m_mutex{};
     };
 } // namespace backend::data_storage
