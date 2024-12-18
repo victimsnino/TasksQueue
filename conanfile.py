@@ -18,6 +18,7 @@ class TasksQueueConan(ConanFile):
     def requirements(self):
         if self.options.with_backend:
             self.requires("boost/1.86.0")
+            self.requires("reflect-cpp/0.16.0")
 
     def build_requirements(self):
         if self.options.with_tests:

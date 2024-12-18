@@ -19,6 +19,13 @@
 
 #include <libraries/rest/router/rest_router.hpp>
 
+struct SerializableData
+{
+    int                      data{};
+    std::vector<std::string> texts{};
+
+    auto operator<=>(const SerializableData& rhs) const = default;
+};
 
 TEST_CASE("Router provide correct routing")
 {
@@ -107,5 +114,42 @@ TEST_CASE("Router provide correct routing")
             return rest::Response{.status_code = rest::Response::Status::Ok};
         });
         REQUIRE(router.Route(rest::Request{.method = rest::Request::Method::Get, .path = "/test/23/subtest?key=value&key2=value2", .content_type = rest::ContentType::TextPlain}).status_code == rest::Response::Status::Ok);
+    }
+    SUBCASE("check serialize/deserialize")
+    {
+        const auto data = SerializableData{.data = 30, .texts = {"hello", "world"}};
+        const auto str  = rest::Serialize(data, rest::ContentType::ApplicationJson);
+        CHECK(str == R"({"data":30,"texts":["hello","world"]})");
+        CHECK(rest::DeSerialize<SerializableData>(str, rest::ContentType::ApplicationJson) == data);
+    }
+    SUBCASE("route with custom serializing")
+    {
+        router.AddRoute<SerializableData, SerializableData>("/test", rest::Request::Method::Get, [](const SerializableData& request, const rest::Router::Params&) -> rest::Router::SerializableResponse<SerializableData> {
+            CHECK(request.data == 30);
+            CHECK(request.texts.size() == 2);
+            CHECK(request.texts[0] == "hello");
+            CHECK(request.texts[1] == "world");
+            return {.status_code = rest::Response::Status::Ok, .body = SerializableData{.data = 30, .texts = {"hello", "world"}}};
+        });
+
+        SUBCASE("valid request")
+        {
+            const auto res = router.Route(rest::Request{.method = rest::Request::Method::Get, .path = "/test", .body = R"({"data": 30, "texts" : ["hello", "world"]})", .content_type = rest::ContentType::ApplicationJson});
+            CHECK(res.status_code == rest::Response::Status::Ok);
+            CHECK(res.content_type == rest::ContentType::ApplicationJson);
+            CHECK(res.body == R"({"data":30,"texts":["hello","world"]})");
+        }
+        SUBCASE("invalid input json")
+        {
+            const auto res = router.Route(rest::Request{.method = rest::Request::Method::Get, .path = "/test", .body = R"({"data": 20, )", .content_type = rest::ContentType::ApplicationJson});
+            CHECK(res.status_code == rest::Response::Status::BadRequest);
+            CHECK(res.body == "Could not parse document");
+        }
+        SUBCASE("not all required fields")
+        {
+            const auto res = router.Route(rest::Request{.method = rest::Request::Method::Get, .path = "/test", .body = R"({"texts" : ["hello", "world"]})", .content_type = rest::ContentType::ApplicationJson});
+            CHECK(res.status_code == rest::Response::Status::BadRequest);
+            CHECK(res.body == "Field named 'data' not found.");
+        }
     }
 }

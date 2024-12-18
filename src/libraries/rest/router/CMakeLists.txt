@@ -23,5 +23,6 @@ tq_add_static_library(
         rest_router.hpp
     PUBLIC
         rest_core
+        reflectcpp::reflectcpp
     ADD_TESTS_WITH_MOCK
 )

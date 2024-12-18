@@ -18,6 +18,7 @@
 #pragma once
 
 #include <libraries/rest/core/rest_core.hpp>
+#include <rfl/json.hpp>
 
 #include <regex>
 #include <unordered_map>
@@ -25,11 +26,52 @@
 
 namespace rest
 {
+    template<typename T>
+    std::string Serialize(const T& v, rest::ContentType content_type)
+    {
+        switch (content_type)
+        {
+        case rest::ContentType::ApplicationJson:
+            return rfl::json::write(v);
+        case rest::ContentType::Unknown:
+        case rest::ContentType::TextPlain:
+        case rest::ContentType::MAX:
+            throw std::runtime_error("Unsupported accept content type");
+        }
+    }
+
+    template<typename T>
+    T DeSerialize(const std::string& v, rest::ContentType content_type)
+    {
+        switch (content_type)
+        {
+        case rest::ContentType::ApplicationJson:
+            return rfl::json::read<T>(v).value();
+        case rest::ContentType::Unknown:
+        case rest::ContentType::TextPlain:
+        case rest::ContentType::MAX:
+            throw std::runtime_error("Unsupported request content type");
+        }
+    }
+
+    template<typename T>
+    concept Serializable = requires(const T& v) { Serialize(v, {}); };
+
+    template<typename T>
+    concept Deserializable = requires(const T& v) { DeSerialize<T>("", {}); };
+
     class Router
     {
     public:
         using Params            = std::unordered_map<std::string, std::string>;
         using HandlerWithParams = std::function<Response(const Request&, const Params&)>;
+
+        template<Serializable T>
+        struct SerializableResponse
+        {
+            const Response::Status status_code;
+            const T                body;
+        };
 
         Router() = default;
 
@@ -41,6 +83,24 @@ namespace rest
          * @throws std::regex_error If the path pattern is invalid
          */
         void AddRoute(const std::string& path, Request::Method method, std::function<Response(const Request&, const Params&)> handler);
+
+        template<Deserializable TRequest, Serializable TResponse>
+        void AddRoute(const std::string& path, Request::Method method, std::function<SerializableResponse<TResponse>(const TRequest&, const Params&)> handler)
+        {
+            AddRoute(path, method, [handler](const Request& req, const Params& params) {
+                std::optional<TRequest> body{};
+                try
+                {
+                    body = DeSerialize<TRequest>(req.body, req.content_type);
+                }
+                catch (const std::exception& e)
+                {
+                    return Response{.status_code = Response::Status::BadRequest, .body = e.what()};
+                }
+                const auto res = handler(body.value(), params);
+                return Response{.status_code = res.status_code, .body = Serialize(res.body, req.accept_content_type), .content_type = req.accept_content_type};
+            });
+        }
 
         /**
          * @brief Routes an incoming request to the appropriate handler
