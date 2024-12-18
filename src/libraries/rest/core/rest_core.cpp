@@ -17,6 +17,7 @@
 
 #include "rest_core.hpp"
 
+#include <libraries/utils/utils.hpp>
 #include <rfl/enums.hpp>
 
 namespace rest
@@ -28,6 +29,7 @@ namespace rest
         case rest::ContentType::TextPlain: return "text/plain";
         case rest::ContentType::ApplicationJson: return "application/json";
         }
+        ENSURE_MSG(false, "Invalid content type");
     }
 
     std::optional<rest::ContentType> ParseContentType(std::string_view content_type)
