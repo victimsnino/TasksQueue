@@ -104,7 +104,7 @@ namespace rest
                 {
                     return Response{.status_code = Response::Status::BadRequest, .body = e.what()};
                 }
-                return Response{.status_code = res.status_code, .body = body_str, .content_type = req.accept_content_type};
+                return Response{.status_code = res.status_code, .body = std::move(body_str), .content_type = req.accept_content_type};
             });
         }
 
