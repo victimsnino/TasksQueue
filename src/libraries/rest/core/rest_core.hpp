@@ -22,7 +22,7 @@
 
 namespace rest
 {
-    enum class ContentType : uint8_t
+    enum class ContentType
     {
         TextPlain,
         ApplicationJson
@@ -51,7 +51,7 @@ namespace rest
     };
     struct Request
     {
-        enum class Method : uint8_t
+        enum class Method
         {
             Get,
             Post,
@@ -72,7 +72,7 @@ namespace rest
 
     struct Response
     {
-        enum class Status : uint16_t
+        enum class Status
         {
             Continue           = 100,
             SwitchingProtocols = 101,
