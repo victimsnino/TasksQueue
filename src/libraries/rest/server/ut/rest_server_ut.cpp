@@ -60,7 +60,7 @@ auto MakeRequest(const std::string& path, const rest::ServerConfig& config)
 
 struct Routes
 {
-    MAKE_MOCK2(Method, rest::Response(rest::Request, rest::Router::Params));
+    MAKE_MOCK2(Method, (rest::Response)(rest::Request, rest::Router::Params));
 };
 
 TEST_CASE("BackendServer provides correct api")
