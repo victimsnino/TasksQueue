@@ -35,7 +35,7 @@ namespace backend::data_storage
 
     private:
         mutable std::shared_mutex m_mutex{};
-        std::vector<Task> m_tasks{};
-        size_t            m_id{};
+        std::vector<Task>         m_tasks{};
+        size_t                    m_id{};
     };
 } // namespace backend::data_storage
