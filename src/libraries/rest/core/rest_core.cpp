@@ -30,7 +30,6 @@ namespace rest
         case rest::ContentType::ApplicationJson: return "application/json";
         }
         ENSURE_MSG(false, "Invalid content type");
-        return {};
     }
 
     std::optional<rest::ContentType> ParseContentType(std::string_view content_type)

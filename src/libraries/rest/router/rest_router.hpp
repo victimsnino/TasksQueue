@@ -20,6 +20,8 @@
 #include <libraries/rest/core/rest_core.hpp>
 #include <rfl/json.hpp>
 
+#include "libraries/utils/utils.hpp"
+
 #include <regex>
 #include <unordered_map>
 #include <vector>
@@ -36,6 +38,7 @@ namespace rest
         case rest::ContentType::TextPlain:
             throw std::runtime_error("Unsupported accept content type");
         }
+        ENSURE_MSG(false, "Invalid content type");
     }
 
     template<typename T>
@@ -48,6 +51,7 @@ namespace rest
         case rest::ContentType::TextPlain:
             throw std::runtime_error("Unsupported request content type");
         }
+        ENSURE_MSG(false, "Invalid content type");
     }
 
     template<typename T>
