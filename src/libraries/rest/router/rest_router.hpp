@@ -17,7 +17,7 @@
 
 #pragma once
 
-#include <libraries/rest/interface/rest_interface.hpp>
+#include <libraries/rest/core/rest_core.hpp>
 
 #include <regex>
 #include <unordered_map>

@@ -42,6 +42,7 @@ auto MakeRequest(const std::string& path, const rest::ServerConfig& config)
 
     // Set up an HTTP GET request message
     http::request<http::string_body> req{http::verb::get, path, 10};
+    req.set(http::field::content_type, "text/plain");
 
     // Send the HTTP request to the remote host
     http::write(stream, req);
@@ -59,31 +60,33 @@ auto MakeRequest(const std::string& path, const rest::ServerConfig& config)
 
 struct Routes
 {
-    MAKE_MOCK2(Method, rest::Router::Response(rest::Router::Request, rest::Router::Params));
+    MAKE_MOCK2(Method, rest::Response(rest::Request, rest::Router::Params));
 };
 
 TEST_CASE("BackendServer provides correct api")
 {
     Routes mock;
     auto   router = rest::Router{};
-    router.AddRoute("/test", http::verb::get, [&mock](const auto& req, const auto& params) { return mock.Method(req, params); });
+    router.AddRoute("/test", rest::Request::Method::Get, [&mock](const auto& req, const auto& params) { return mock.Method(req, params); });
 
     const auto config     = rest::ServerConfig();
-    auto       stop_token = rest::StartServer(router, config);
+    auto       stop_token = rest::StartServer(std::move(router), config);
 
     SUBCASE("get /invalid")
     {
         const auto resp = MakeRequest("/invalid", config);
-        REQUIRE(resp.result() == http::status::not_found);
-        REQUIRE(resp.body() == "");
+        CHECK(resp.result() == http::status::not_found);
+        CHECK(resp.body() == "");
     }
 
     SUBCASE("get /test")
     {
-        REQUIRE_CALL(mock, Method(trompeloeil::_, trompeloeil::_)).RETURN(http::response<http::string_body>{http::status::ok, 10});
+        REQUIRE_CALL(mock, Method(trompeloeil::_, trompeloeil::_)).RETURN(rest::Response{.status_code = rest::Response::Status::Ok, .body = "test", .content_type = rest::ContentType::ApplicationJson});
 
         const auto resp = MakeRequest("/test", config);
-        REQUIRE(resp.result() == http::status::ok);
+        CHECK(resp.result() == http::status::ok);
+        CHECK(resp.body() == "test");
+        CHECK(resp[http::field::content_type] == rest::ParseContentType(rest::ContentType::ApplicationJson));
     }
 
     stop_token.Stop();

@@ -15,10 +15,11 @@
 #
 # Home page: https://github.com/victimsnino/TasksQueue/
 
-tq_add_interface_library(
+tq_add_static_library(
     TARGET_NAME
-        rest_interface
+        rest_core
     SOURCES
-        rest_interface.hpp
-    INTERFACE
+        rest_core.cpp
+        rest_core.hpp
+
 )

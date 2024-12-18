@@ -127,9 +127,13 @@ namespace rest
             NetworkAuthenticationRequired = 511
         };
 
-        Status status_code = Status::Ok;
+        Status      status_code = Status::Ok;
+        std::string body{};
 
         ContentType content_type = ContentType::TextPlain;
-        std::string body{};
     };
+
+    std::string_view  ParseContentType(rest::ContentType content_type);
+    rest::ContentType ParseContentType(std::string_view content_type);
+
 } // namespace rest

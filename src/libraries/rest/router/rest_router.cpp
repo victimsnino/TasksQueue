@@ -37,10 +37,7 @@ namespace rest
                 auto param = query.substr(start, end == std::string::npos ? end : end - start);
                 auto eq    = param.find('=');
 
-                if (eq != std::string::npos)
-                    query_params[std::string{param.substr(0, eq)}] = param.substr(eq + 1);
-                else
-                    query_params[std::string{param}] = ""; // Parameter without a value
+                query_params[std::string{param.substr(0, eq)}] = eq != std::string::npos ? param.substr(eq + 1) : "";
 
                 if (end == std::string::npos)
                     break;

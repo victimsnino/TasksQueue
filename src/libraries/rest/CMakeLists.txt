@@ -18,5 +18,5 @@
 if (BUILD_BACKEND_SERVER)
     add_subdirectory(server)
     add_subdirectory(router)
-    add_subdirectory(interface)
+    add_subdirectory(core)
 endif()

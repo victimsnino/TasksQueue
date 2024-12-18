@@ -76,28 +76,6 @@ namespace rest
             }
         }
 
-        std::string_view ParseContentType(rest::ContentType content_type)
-        {
-            switch (content_type)
-            {
-            case rest::ContentType::TextPlain: return "text/plain";
-            case rest::ContentType::ApplicationJson: return "application/json";
-
-            case rest::ContentType::Unknown:
-            case rest::ContentType::MAX:
-                return "";
-            }
-        }
-
-        rest::ContentType ParseContentType(std::string_view content_type)
-        {
-            using EnumType = std::underlying_type_t<rest::ContentType>;
-            for (auto type = static_cast<EnumType>(rest::ContentType::Unknown); type != static_cast<EnumType>(rest::ContentType::MAX); ++type)
-                if (ParseContentType(static_cast<rest::ContentType>(type)) == content_type)
-                    return static_cast<rest::ContentType>(type);
-            return rest::ContentType::Unknown;
-        }
-
         boost::beast::http::response<boost::beast::http::string_body> CreateResponse(const rest::Response& response)
         {
             boost::beast::http::response<boost::beast::http::string_body> res;
