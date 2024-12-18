@@ -26,7 +26,7 @@ namespace http  = beast::http;
 namespace net   = boost::asio;
 using tcp       = net::ip::tcp;
 
-auto MakeRequest(const std::string& path, const rest::ServerConfig& config)
+auto MakeRequest(const std::string& path, const rest::ServerConfig& config, http::verb method = http::verb::get, std::string content_type = "text/plain", std::string accept_content_type = "text/plain")
 {
     net::io_context ioc;
 
@@ -41,8 +41,9 @@ auto MakeRequest(const std::string& path, const rest::ServerConfig& config)
     stream.connect(endpoint);
 
     // Set up an HTTP GET request message
-    http::request<http::string_body> req{http::verb::get, path, 10};
-    req.set(http::field::content_type, "text/plain");
+    http::request<http::string_body> req{method, path, 10};
+    req.set(http::field::content_type, content_type);
+    req.set(http::field::accept, accept_content_type);
 
     // Send the HTTP request to the remote host
     http::write(stream, req);
@@ -87,6 +88,24 @@ TEST_CASE("BackendServer provides correct api")
         CHECK(resp.result() == http::status::ok);
         CHECK(resp.body() == "test");
         CHECK(resp[http::field::content_type] == rest::ParseContentType(rest::ContentType::ApplicationJson));
+    }
+    SUBCASE("invalid method")
+    {
+        const auto resp = MakeRequest("/test", config, http::verb::lock);
+        CHECK(resp.result() == http::status::method_not_allowed);
+        CHECK(resp.body() == "Unsupported or unknown method");
+    }
+    SUBCASE("invalid content-type")
+    {
+        const auto resp = MakeRequest("/test", config, http::verb::get, "123asf");
+        CHECK(resp.result() == http::status::bad_request);
+        CHECK(resp.body() == "Unsupported or unknown content type");
+    }
+    SUBCASE("invalid accept-content-type")
+    {
+        const auto resp = MakeRequest("/test", config, http::verb::get, "text/plain", "123asf");
+        CHECK(resp.result() == http::status::bad_request);
+        CHECK(resp.body() == "Unsupported or unknown accept content type");
     }
 
     stop_token.Stop();

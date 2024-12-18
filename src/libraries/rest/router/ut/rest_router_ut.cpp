@@ -85,18 +85,6 @@ TEST_CASE("Router provide correct routing")
         REQUIRE(router.Route(rest::Request{.method = rest::Request::Method::Get, .path = "/test/135/subtest", .content_type = rest::ContentType::TextPlain}).status_code == rest::Response::Status::Ok);
         REQUIRE(router.Route(rest::Request{.method = rest::Request::Method::Get, .path = "/test/135", .content_type = rest::ContentType::TextPlain}).status_code == rest::Response::Status::NotFound);
     }
-    SUBCASE("invalid content-type")
-    {
-        REQUIRE(router.Route(rest::Request{.method = rest::Request::Method::Get, .path = "/test", .content_type = rest::ContentType::Unknown, .accept_content_type = rest::ContentType::TextPlain}).status_code == rest::Response::Status::BadRequest);
-    }
-    SUBCASE("invalid accept-content-type")
-    {
-        REQUIRE(router.Route(rest::Request{.method = rest::Request::Method::Get, .path = "/test", .content_type = rest::ContentType::TextPlain, .accept_content_type = rest::ContentType::Unknown}).status_code == rest::Response::Status::BadRequest);
-    }
-    SUBCASE("invalid method")
-    {
-        REQUIRE(router.Route(rest::Request{.method = rest::Request::Method::Unknown, .path = "/test", .content_type = rest::ContentType::TextPlain}).status_code == rest::Response::Status::BadRequest);
-    }
     SUBCASE("query params")
     {
         router.AddRoute("/test/", rest::Request::Method::Get, [](const rest::Request&, const rest::Router::Params& params) {
@@ -150,6 +138,20 @@ TEST_CASE("Router provide correct routing")
             const auto res = router.Route(rest::Request{.method = rest::Request::Method::Get, .path = "/test", .body = R"({"texts" : ["hello", "world"]})", .content_type = rest::ContentType::ApplicationJson});
             CHECK(res.status_code == rest::Response::Status::BadRequest);
             CHECK(res.body == "Field named 'data' not found.");
+        }
+        SUBCASE("Unsupported content-type request")
+        {
+            const auto res = router.Route(rest::Request{.method = rest::Request::Method::Get, .path = "/test", .body = R"({"data": 30, "texts" : ["hello", "world"]})", .content_type = rest::ContentType::TextPlain});
+            CHECK(res.status_code == rest::Response::Status::BadRequest);
+            CHECK(res.content_type == rest::ContentType::TextPlain);
+            CHECK(res.body == "Unsupported request content type");
+        }
+        SUBCASE("Unsupported accept-content-type request")
+        {
+            const auto res = router.Route(rest::Request{.method = rest::Request::Method::Get, .path = "/test", .body = R"({"data": 30, "texts" : ["hello", "world"]})", .content_type = rest::ContentType::ApplicationJson, .accept_content_type = rest::ContentType::TextPlain});
+            CHECK(res.status_code == rest::Response::Status::BadRequest);
+            CHECK(res.content_type == rest::ContentType::TextPlain);
+            CHECK(res.body == "Unsupported accept content type");
         }
     }
 }

@@ -61,7 +61,7 @@ namespace rest
             std::atomic_bool started{};
         };
 
-        rest::Request::Method ParseMethod(http::verb method)
+        std::optional<rest::Request::Method> ParseMethod(http::verb method)
         {
             switch (method)
             {
@@ -72,7 +72,7 @@ namespace rest
             case http::verb::patch: return rest::Request::Method::Patch;
             case http::verb::head: return rest::Request::Method::Head;
             case http::verb::options: return rest::Request::Method::Options;
-            default: return rest::Request::Method::Unknown;
+            default: return {};
             }
         }
 
@@ -87,6 +87,23 @@ namespace rest
             return res;
         }
 
+        Response PrepareResponse(const http::request<http::string_body>& req, const Router& router)
+        {
+            const auto method = ParseMethod(req.method());
+            if (!method)
+                return Response{.status_code = Response::Status::MethodNotAllowed, .body = "Unsupported or unknown method"};
+
+            const auto content_type = ParseContentType(req[http::field::content_type]);
+            if (!content_type)
+                return Response{.status_code = Response::Status::BadRequest, .body = "Unsupported or unknown content type"};
+
+            const auto accept_content_type = ParseContentType(req[http::field::accept]);
+            if (!accept_content_type)
+                return Response{.status_code = Response::Status::BadRequest, .body = "Unsupported or unknown accept content type"};
+
+            return router.Route({.method = method.value(), .path = req.target(), .body = req.body(), .content_type = content_type.value(), .accept_content_type = accept_content_type.value()});
+        }
+
         net::awaitable<void> DoSession(beast::tcp_stream stream, std::shared_ptr<ServerContext> ctx)
         {
             // This buffer is required to persist across reads
@@ -97,7 +114,7 @@ namespace rest
             http::request<http::string_body> req;
             co_await http::async_read(stream, buffer, req);
 
-            co_await beast::async_write(stream, boost::beast::http::message_generator{CreateResponse(ctx->router.Route({.method = ParseMethod(req.method()), .path = req.target(), .body = req.body(), .content_type = ParseContentType(req[http::field::content_type])}))});
+            co_await beast::async_write(stream, boost::beast::http::message_generator{CreateResponse(PrepareResponse(req, ctx->router))});
 
             // Send a TCP shutdown
             stream.socket().shutdown(net::ip::tcp::socket::shutdown_send);

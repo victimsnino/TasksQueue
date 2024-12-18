@@ -33,9 +33,7 @@ namespace rest
         {
         case rest::ContentType::ApplicationJson:
             return rfl::json::write(v);
-        case rest::ContentType::Unknown:
         case rest::ContentType::TextPlain:
-        case rest::ContentType::MAX:
             throw std::runtime_error("Unsupported accept content type");
         }
     }
@@ -47,9 +45,7 @@ namespace rest
         {
         case rest::ContentType::ApplicationJson:
             return rfl::json::read<T>(v).value();
-        case rest::ContentType::Unknown:
         case rest::ContentType::TextPlain:
-        case rest::ContentType::MAX:
             throw std::runtime_error("Unsupported request content type");
         }
     }
@@ -97,8 +93,18 @@ namespace rest
                 {
                     return Response{.status_code = Response::Status::BadRequest, .body = e.what()};
                 }
-                const auto res = handler(body.value(), params);
-                return Response{.status_code = res.status_code, .body = Serialize(res.body, req.accept_content_type), .content_type = req.accept_content_type};
+
+                const auto  res = handler(body.value(), params);
+                std::string body_str{};
+                try
+                {
+                    body_str = Serialize(res.body, req.accept_content_type);
+                }
+                catch (const std::exception& e)
+                {
+                    return Response{.status_code = Response::Status::BadRequest, .body = e.what()};
+                }
+                return Response{.status_code = res.status_code, .body = body_str, .content_type = req.accept_content_type};
             });
         }
 

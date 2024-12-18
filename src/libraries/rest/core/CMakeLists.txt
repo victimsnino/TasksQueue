@@ -21,5 +21,6 @@ tq_add_static_library(
     SOURCES
         rest_core.cpp
         rest_core.hpp
-
+    PRIVATE
+        reflectcpp::reflectcpp
 )

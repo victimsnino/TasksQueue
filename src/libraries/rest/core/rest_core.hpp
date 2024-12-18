@@ -17,23 +17,40 @@
 
 #pragma once
 
+#include <optional>
 #include <string>
 
 namespace rest
 {
     enum class ContentType : uint8_t
     {
-        Unknown = 0,
         TextPlain,
-        ApplicationJson,
-        MAX
+        ApplicationJson
     };
 
+    template<typename T>
+    class NotDefaultConstructible
+    {
+    public:
+        NotDefaultConstructible() = delete;
+        NotDefaultConstructible(const T& v)
+            : m_value(v)
+        {
+        }
+        NotDefaultConstructible(T&& v)
+            : m_value(std::move(v))
+        {
+        }
+
+        operator const T &() const { return m_value; }
+
+    private:
+        T m_value;
+    };
     struct Request
     {
         enum class Method : uint8_t
         {
-            Unknown = 0,
             Get,
             Post,
             Put,
@@ -43,12 +60,12 @@ namespace rest
             Options,
         };
 
-        const Method      method{};
-        const std::string path{};
-        const std::string body{};
+        const NotDefaultConstructible<Method> method;
+        const std::string                     path{};
+        const std::string                     body{};
 
-        const ContentType content_type{};
-        const ContentType accept_content_type = content_type;
+        const NotDefaultConstructible<ContentType> content_type;
+        const ContentType                          accept_content_type = content_type;
     };
 
     struct Response
@@ -133,7 +150,7 @@ namespace rest
         ContentType content_type = ContentType::TextPlain;
     };
 
-    std::string_view  ParseContentType(rest::ContentType content_type);
-    rest::ContentType ParseContentType(std::string_view content_type);
+    std::string_view                 ParseContentType(rest::ContentType content_type);
+    std::optional<rest::ContentType> ParseContentType(std::string_view content_type);
 
 } // namespace rest

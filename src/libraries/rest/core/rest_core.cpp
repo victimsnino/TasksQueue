@@ -17,6 +17,8 @@
 
 #include "rest_core.hpp"
 
+#include <rfl/enums.hpp>
+
 namespace rest
 {
     std::string_view ParseContentType(rest::ContentType content_type)
@@ -25,19 +27,14 @@ namespace rest
         {
         case rest::ContentType::TextPlain: return "text/plain";
         case rest::ContentType::ApplicationJson: return "application/json";
-
-        case rest::ContentType::Unknown:
-        case rest::ContentType::MAX:
-            return "";
         }
     }
 
-    rest::ContentType ParseContentType(std::string_view content_type)
+    std::optional<rest::ContentType> ParseContentType(std::string_view content_type)
     {
-        using EnumType = std::underlying_type_t<rest::ContentType>;
-        for (auto type = static_cast<EnumType>(rest::ContentType::Unknown); type != static_cast<EnumType>(rest::ContentType::MAX); ++type)
-            if (ParseContentType(static_cast<rest::ContentType>(type)) == content_type)
-                return static_cast<rest::ContentType>(type);
-        return rest::ContentType::Unknown;
+        for (auto [_, type] : rfl::get_enumerator_array<rest::ContentType>())
+            if (ParseContentType(type) == content_type)
+                return type;
+        return {};
     }
 } // namespace rest
