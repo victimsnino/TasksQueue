@@ -42,7 +42,10 @@ namespace rest
         {
         }
 
+        auto operator==(const T& rhs) const { return m_value == rhs; }
         auto operator<=>(const T& rhs) const { return m_value <=> rhs; }
+
+        auto operator<=>(const NotDefaultConstructible& rhs) const = default;
 
         operator const T &() const { return m_value; }
 
