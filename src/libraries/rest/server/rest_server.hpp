@@ -17,18 +17,31 @@
 
 #pragma once
 
-#include <libraries/backend/interface/task/task.hpp>
+#include <libraries/rest/router/rest_router.hpp>
 
-#include <vector>
+#include <memory>
 
-namespace backend
+namespace rest
 {
-    struct DataStorage
-    {
-        virtual ~DataStorage() = default;
+    struct ServerLifetime;
 
-        virtual Task              CreateTask(const TaskPayload& payload) = 0;
-        virtual void              DeleteTask(size_t index)               = 0;
-        virtual std::vector<Task> GetTasks() const                       = 0;
+    class StopHandler
+    {
+    public:
+        explicit StopHandler(std::shared_ptr<ServerLifetime> ctx);
+        ~StopHandler() noexcept;
+        void Stop() const;
+
+    private:
+        std::shared_ptr<ServerLifetime> m_ctx;
     };
-} // namespace backend
+
+    struct ServerConfig
+    {
+        std::string address = "127.0.0.1";
+        uint16_t    port    = 8080;
+        size_t      threads = 1;
+    };
+
+    StopHandler StartServer(rest::Router&& router, const ServerConfig& config);
+} // namespace rest

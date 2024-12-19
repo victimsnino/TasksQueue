@@ -15,6 +15,10 @@
 #
 # Home page: https://github.com/victimsnino/TasksQueue/
 
-add_subdirectory(backend)
-add_subdirectory(rest)
-add_subdirectory(utils)
+tq_add_interface_library(
+    TARGET_NAME
+        utils
+    SOURCES
+        utils.hpp
+    INTERFACE
+)

@@ -15,6 +15,16 @@
 #
 # Home page: https://github.com/victimsnino/TasksQueue/
 
-add_subdirectory(backend)
-add_subdirectory(rest)
-add_subdirectory(utils)
+
+tq_add_static_library(
+    TARGET_NAME
+        rest_server
+    SOURCES
+        rest_server.cpp
+        rest_server.hpp
+    PRIVATE
+        boost::boost
+    PUBLIC
+        rest_router
+    ADD_TESTS_WITH_MOCK
+)

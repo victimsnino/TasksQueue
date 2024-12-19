@@ -22,22 +22,22 @@
 #include <memory>
 #include <vector>
 
-namespace backend::interface
+namespace backend
 {
     struct DataStorage;
-} // namespace backend::interface
+} // namespace backend
 
 namespace backend
 {
     class TasksManager
     {
     public:
-        explicit TasksManager(std::shared_ptr<interface::DataStorage> storage);
+        explicit TasksManager(std::shared_ptr<DataStorage> storage);
 
-        interface::Task              CreateTask(const interface::TaskPayload& payload) const;
-        std::vector<interface::Task> GetTasks() const;
+        Task              CreateTask(const TaskPayload& payload) const;
+        std::vector<Task> GetTasks() const;
 
     private:
-        std::shared_ptr<interface::DataStorage> m_storage{};
+        std::shared_ptr<DataStorage> m_storage{};
     };
 } // namespace backend

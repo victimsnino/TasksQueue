@@ -17,18 +17,9 @@
 
 #pragma once
 
-#include <libraries/backend/interface/task/task.hpp>
-
-#include <vector>
-
-namespace backend
-{
-    struct DataStorage
-    {
-        virtual ~DataStorage() = default;
-
-        virtual Task              CreateTask(const TaskPayload& payload) = 0;
-        virtual void              DeleteTask(size_t index)               = 0;
-        virtual std::vector<Task> GetTasks() const                       = 0;
-    };
-} // namespace backend
+#define ENSURE_MSG(expr, msg)          \
+    if (!(expr))                       \
+    {                                  \
+        throw std::runtime_error(msg); \
+    }
+#define ENSURE(expr) ENSURE_MSG(expr, #expr)

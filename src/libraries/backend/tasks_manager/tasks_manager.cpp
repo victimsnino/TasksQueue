@@ -23,17 +23,17 @@
 
 namespace backend
 {
-    TasksManager::TasksManager(std::shared_ptr<interface::DataStorage> storage)
+    TasksManager::TasksManager(std::shared_ptr<DataStorage> storage)
         : m_storage{std::move(storage)}
     {
     }
 
-    interface::Task TasksManager::CreateTask(const interface::TaskPayload& payload) const
+    Task TasksManager::CreateTask(const TaskPayload& payload) const
     {
         return m_storage->CreateTask(payload);
     }
 
-    std::vector<interface::Task> TasksManager::GetTasks() const
+    std::vector<Task> TasksManager::GetTasks() const
     {
         return m_storage->GetTasks();
     }

@@ -58,4 +58,6 @@ if(BUILD_TESTS)
 endif()
 
 if (BUILD_BACKEND_SERVER)
+  find_package(Boost REQUIRED)
+  find_package(reflectcpp REQUIRED)
 endif()

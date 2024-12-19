@@ -17,18 +17,14 @@
 
 #pragma once
 
-#include <libraries/backend/interface/task/task.hpp>
+#include <doctest/doctest.h>
+#include <doctest/trompeloeil.hpp>
 
-#include <vector>
+#include <libraries/backend/data_storage/interface/data_storage.hpp>
 
-namespace backend
+struct MockDataStorage final : public trompeloeil::mock_interface<backend::DataStorage>
 {
-    struct DataStorage
-    {
-        virtual ~DataStorage() = default;
-
-        virtual Task              CreateTask(const TaskPayload& payload) = 0;
-        virtual void              DeleteTask(size_t index)               = 0;
-        virtual std::vector<Task> GetTasks() const                       = 0;
-    };
-} // namespace backend
+    IMPLEMENT_MOCK1(CreateTask);
+    IMPLEMENT_MOCK1(DeleteTask);
+    IMPLEMENT_CONST_MOCK0(GetTasks);
+};

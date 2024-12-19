@@ -15,20 +15,28 @@
 //
 // Home page: https://github.com/victimsnino/TasksQueue/
 
-#pragma once
+#include "rest_core.hpp"
 
-#include <libraries/backend/interface/task/task.hpp>
+#include <libraries/utils/utils.hpp>
+#include <rfl/enums.hpp>
 
-#include <vector>
-
-namespace backend
+namespace rest
 {
-    struct DataStorage
+    std::string_view ParseContentType(rest::ContentType content_type)
     {
-        virtual ~DataStorage() = default;
+        switch (content_type)
+        {
+        case rest::ContentType::TextPlain: return "text/plain";
+        case rest::ContentType::ApplicationJson: return "application/json";
+        }
+        ENSURE_MSG(false, "Invalid content type");
+    }
 
-        virtual Task              CreateTask(const TaskPayload& payload) = 0;
-        virtual void              DeleteTask(size_t index)               = 0;
-        virtual std::vector<Task> GetTasks() const                       = 0;
-    };
-} // namespace backend
+    std::optional<rest::ContentType> ParseContentType(std::string_view content_type)
+    {
+        for (auto [_, type] : rfl::get_enumerator_array<rest::ContentType>())
+            if (ParseContentType(type) == content_type)
+                return type;
+        return {};
+    }
+} // namespace rest
