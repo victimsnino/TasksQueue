@@ -22,13 +22,13 @@
 namespace backend::data_storage
 {
     /**
- * Default constructor for InMemoryStorage class.
- */
-InMemoryStorage::InMemoryStorage()  = default;
+     * Default constructor for InMemoryStorage class.
+     */
+    InMemoryStorage::InMemoryStorage() = default;
     /**
- * Virtual destructor for InMemoryStorage class.
- */
-InMemoryStorage::~InMemoryStorage() = default;
+     * Virtual destructor for InMemoryStorage class.
+     */
+    InMemoryStorage::~InMemoryStorage() = default;
 
     /**
      * Creates a new task with the given payload and stores it in memory.

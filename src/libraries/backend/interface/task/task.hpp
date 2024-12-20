@@ -36,11 +36,11 @@ namespace backend
         TaskPayload payload{};
 
         /**
- * Default three-way comparison operator for Task objects.
- * @brief Enables spaceship operator (<=>), automatically generating all comparison operators.
- * @param rhs The right-hand side Task object to compare with.
- * @return Strong ordering comparison result.
- */
-auto operator<=>(const Task& rhs) const = default;
+         * Default three-way comparison operator for Task objects.
+         * @brief Enables spaceship operator (<=>), automatically generating all comparison operators.
+         * @param rhs The right-hand side Task object to compare with.
+         * @return Strong ordering comparison result.
+         */
+        auto operator<=>(const Task& rhs) const = default;
     };
 } // namespace backend

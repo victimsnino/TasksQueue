@@ -25,12 +25,12 @@ struct SerializableData
     std::vector<std::string> texts{};
 
     /**
- * Default three-way comparison operator for SerializableData.
- * Performs member-wise comparison using the spaceship operator.
- * @param rhs The right-hand side operand to compare against
- * @return std::strong_ordering indicating less, equal, or greater
- */
-auto operator<=>(const SerializableData& rhs) const = default;
+     * Default three-way comparison operator for SerializableData.
+     * Performs member-wise comparison using the spaceship operator.
+     * @param rhs The right-hand side operand to compare against
+     * @return std::strong_ordering indicating less, equal, or greater
+     */
+    auto operator<=>(const SerializableData& rhs) const = default;
 };
 
 TEST_CASE("Router provide correct routing")

@@ -94,9 +94,9 @@ namespace rest
         };
 
         /**
- * Default constructor for the Router class.
- */
-Router() = default;
+         * Default constructor for the Router class.
+         */
+        Router() = default;
 
         /**
          * @brief Adds a new route to the router
@@ -110,19 +110,19 @@ Router() = default;
         template<Deserializable TRequest, Serializable TResponse>
         /**
          * Adds a route handler for a specific HTTP path and method with automatic request deserialization and response serialization.
-         * 
+         *
          * @param path The URL path to handle
          * @param method The HTTP method (GET, POST, etc.) to handle
          * @param handler Function that processes the deserialized request and returns a serializable response
-         * 
+         *
          * @throws std::exception If request deserialization fails (returns HTTP 400)
          * @throws std::exception If response serialization fails (returns HTTP 400)
-         * 
+         *
          * @details This method wraps the provided handler with automatic deserialization of the request body
          * into TRequest type and serialization of the response according to the client's Accept header.
          * If either serialization or deserialization fails, it returns a 400 Bad Request response
          * with the error message as plain text.
-         * 
+         *
          * @tparam TRequest The type to deserialize the request body into
          * @tparam TResponse The type of response body to be serialized
          */

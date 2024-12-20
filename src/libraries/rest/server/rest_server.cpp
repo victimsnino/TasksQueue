@@ -188,7 +188,7 @@ namespace rest
          * @param endpoint The TCP endpoint to listen on
          * @param ctx Shared server context containing server state and configuration
          * @return An awaitable that never completes normally (runs until server shutdown)
-         * 
+         *
          * @details
          * This coroutine sets up a TCP acceptor that:
          * - Opens the specified endpoint
@@ -268,11 +268,11 @@ namespace rest
 
     /**
      * Stops the IO context and joins all associated threads.
-     * 
+     *
      * This method safely stops the IO context if it's running and ensures all threads
      * are properly joined. It is thread-safe and idempotent - multiple calls will not
      * cause issues.
-     * 
+     *
      * @note This is a blocking call that waits for all threads to complete
      * @thread_safety Thread-safe
      */
