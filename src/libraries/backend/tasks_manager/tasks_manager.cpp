@@ -23,16 +23,30 @@
 
 namespace backend
 {
+    /**
+     * Constructor for TasksManager class.
+     * @param storage A shared pointer to the DataStorage instance that will be used for task persistence.
+     *               Ownership of the storage pointer is transferred to TasksManager.
+     */
     TasksManager::TasksManager(std::shared_ptr<DataStorage> storage)
         : m_storage{std::move(storage)}
     {
     }
 
+    /**
+     * Creates a new task with the given payload.
+     * @param payload The task payload containing task configuration and data
+     * @return A newly created Task object
+     */
     Task TasksManager::CreateTask(const TaskPayload& payload) const
     {
         return m_storage->CreateTask(payload);
     }
 
+    /**
+     * Retrieves all tasks from the storage.
+     * @return A vector containing all stored tasks.
+     */
     std::vector<Task> TasksManager::GetTasks() const
     {
         return m_storage->GetTasks();

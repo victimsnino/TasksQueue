@@ -21,6 +21,22 @@ namespace rest
 {
     namespace
     {
+        /**
+         * Parses URL query parameters and modifies the input URL to remove them.
+         * @param url Input URL string to parse. Will be modified to remove query parameters.
+         * @return An unordered map containing key-value pairs of query parameters.
+         *         Empty map if no query parameters are found.
+         * 
+         * @details Extracts query parameters from a URL string after the '?' character.
+         *          Parameters are expected in the format 'key=value' separated by '&'.
+         *          If a parameter has no value (no '=' sign), an empty string is used as value.
+         *          The input URL is modified to remove the query string portion.
+         * 
+         * Example:
+         * Input URL: "http://example.com?key1=value1&key2=&key3=value3"
+         * Returns: {{"key1", "value1"}, {"key2", ""}, {"key3", "value3"}}
+         * Modified URL becomes: "http://example.com"
+         */
         std::unordered_map<std::string, std::string> ParseParams(std::string& url)
         {
             size_t query_start = url.find('?');
@@ -49,7 +65,18 @@ namespace rest
 
             return query_params;
         }
-    } // namespace
+    } /**
+     * Adds a new route to the router with URL parameter support.
+     * @param path The URL path pattern (must start with '/'). Can include parameters in the format {:name}
+     *            Example: "/users/{:id}/profile"
+     * @param method The HTTP method for this route
+     * @param handler Callback function to handle requests matching this route. The handler receives
+     *               extracted URL parameters as arguments
+     * @throws std::invalid_argument If path is empty, doesn't start with '/', or if handler is null
+     * @details The function converts URL parameters in the format {:name} to regex patterns and stores
+     *          the parameter names for later extraction. The path is converted to a regex pattern that
+     *          ensures exact matching of the route.
+     */
     void Router::AddRoute(const std::string& path, Request::Method method, Router::HandlerWithParams handler)
     {
         if (path.empty() || path[0] != '/')
@@ -75,6 +102,27 @@ namespace rest
         info.handlers[method] = std::move(handler);
     }
 
+    /**
+     * Routes an incoming HTTP request to the appropriate handler based on URL pattern matching.
+     * 
+     * @param req The incoming HTTP request to be routed
+     * @return Response object containing the result of handling the request
+     *         - 200 OK if request is successfully handled
+     *         - 404 Not Found if no matching route is found
+     *         - 405 Method Not Allowed if route exists but method is not supported
+     *         - 500 Internal Server Error if pattern matching fails or handler throws exception
+     * 
+     * @throws None - All exceptions are caught and converted to 500 responses
+     * 
+     * @details The function performs the following steps:
+     *          1. Extracts URL and parses query parameters
+     *          2. Matches URL against registered route patterns
+     *          3. Extracts URL parameters from matching route
+     *          4. Finds and executes appropriate handler for the HTTP method
+     *          5. Returns response from handler or error response if any step fails
+     * 
+     * @thread_safety This method is const and thread-safe if the handlers it calls are thread-safe
+     */
     Response Router::Route(const Request& req) const
     {
         std::string url    = req.path;

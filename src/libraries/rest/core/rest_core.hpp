@@ -32,24 +32,59 @@ namespace rest
     class NotDefaultConstructible
     {
     public:
-        NotDefaultConstructible() = delete;
+        /**
+ * Explicitly deleted default constructor to prevent object creation without parameters.
+ */
+NotDefaultConstructible() = delete;
+        /**
+         * Constructor that initializes the object with a given value.
+         * @param v The value to initialize the internal member with.
+         */
         NotDefaultConstructible(const T& v)
             : m_value(v)
         {
         }
+        /**
+         * Move constructor that initializes the object with a rvalue reference.
+         * @param v The value to move into this object
+         */
         NotDefaultConstructible(T&& v)
             : m_value(std::move(v))
         {
         }
 
-        auto operator==(const T& rhs) const { return m_value == rhs; }
-        auto operator<=>(const T& rhs) const { return m_value <=> rhs; }
+        /**
+ * Equality comparison operator.
+ * @param rhs The right-hand side value to compare against.
+ * @return true if this object's value equals the right-hand side value, false otherwise.
+ */
+auto operator==(const T& rhs) const { return m_value == rhs; }
+        /**
+ * Three-way comparison operator (spaceship operator).
+ * @param rhs The right-hand side value to compare against.
+ * @return A std::strong_ordering indicating less, equal, or greater relationship.
+ */
+auto operator<=>(const T& rhs) const { return m_value <=> rhs; }
 
-        auto operator<=>(const NotDefaultConstructible& rhs) const = default;
+        /**
+ * Default three-way comparison operator for NotDefaultConstructible.
+ * Performs member-wise comparison using the spaceship operator.
+ * @param rhs The right-hand side object to compare with
+ * @return auto The three-way comparison result (less, equal, or greater)
+ */
+auto operator<=>(const NotDefaultConstructible& rhs) const = default;
 
-        operator const T &() const { return m_value; }
+        /**
+ * Conversion operator that provides read-only access to the underlying value.
+ * @return A const reference to the stored value of type T
+ */
+operator const T &() const { return m_value; }
 
-        const T& get() const { return m_value; }
+        /**
+ * Gets the stored value.
+ * @return A const reference to the stored value.
+ */
+const T& get() const { return m_value; }
 
     private:
         T m_value;

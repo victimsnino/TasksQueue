@@ -22,6 +22,12 @@
 
 namespace rest
 {
+    /**
+     * Converts a ContentType enum to its corresponding MIME type string representation.
+     * @param content_type The content type enum to convert
+     * @return A string_view containing the MIME type string
+     * @throws Assertion error if an invalid/unhandled content type is provided
+     */
     std::string_view ParseContentType(rest::ContentType content_type)
     {
         switch (content_type)
@@ -32,6 +38,11 @@ namespace rest
         ENSURE_MSG(false, "Invalid content type");
     }
 
+    /**
+     * Parses a string representation of content type and returns the corresponding ContentType enum value.
+     * @param content_type The string view containing the content type to parse
+     * @return An optional containing the matched ContentType enum value, or empty optional if no match is found
+     */
     std::optional<rest::ContentType> ParseContentType(std::string_view content_type)
     {
         for (auto [_, type] : rfl::get_enumerator_array<rest::ContentType>())

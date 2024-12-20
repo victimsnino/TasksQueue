@@ -21,9 +21,22 @@
 
 namespace backend::data_storage
 {
-    InMemoryStorage::InMemoryStorage()  = default;
-    InMemoryStorage::~InMemoryStorage() = default;
+    /**
+ * Default constructor for InMemoryStorage class.
+ */
+InMemoryStorage::InMemoryStorage()  = default;
+    /**
+ * Virtual destructor for InMemoryStorage class.
+ */
+InMemoryStorage::~InMemoryStorage() = default;
 
+    /**
+     * Creates a new task with the given payload and stores it in memory.
+     * @param payload The task payload containing task details
+     * @return The newly created Task object with an auto-generated ID
+     * @thread_safety Thread-safe. Protected by internal mutex
+     * @note Task IDs are generated sequentially starting from 0
+     */
     Task InMemoryStorage::CreateTask(const TaskPayload& payload)
     {
         std::lock_guard _{m_mutex};
@@ -31,6 +44,13 @@ namespace backend::data_storage
         return m_tasks.back();
     }
 
+    /**
+     * Deletes a task with the specified index from the storage if it exists.
+     * @param index The unique identifier of the task to delete
+     * @note Thread-safe operation protected by mutex
+     * @details Uses binary search to locate the task. If the task is not found,
+     *          the function returns silently without any effect.
+     */
     void InMemoryStorage::DeleteTask(size_t index)
     {
         std::lock_guard _{m_mutex};
@@ -41,6 +61,11 @@ namespace backend::data_storage
         m_tasks.erase(itr);
     }
 
+    /**
+     * Retrieves all tasks from the in-memory storage.
+     * @return A copy of the stored tasks vector
+     * @thread_safety Thread-safe. Uses shared lock for concurrent read access
+     */
     std::vector<Task> InMemoryStorage::GetTasks() const
     {
         std::shared_lock _{m_mutex};

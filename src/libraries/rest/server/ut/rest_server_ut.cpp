@@ -26,6 +26,23 @@ namespace http  = beast::http;
 namespace net   = boost::asio;
 using tcp       = net::ip::tcp;
 
+/**
+ * Makes an HTTP request to a specified endpoint with configurable parameters.
+ *
+ * @param path The URL path for the request
+ * @param config Server configuration containing address and port information
+ * @param method HTTP verb for the request (default: GET)
+ * @param content_type Content-Type header value for the request (default: "text/plain")
+ * @param accept_content_type Accept header value for the request (default: "text/plain")
+ *
+ * @return http::response<http::string_body> The HTTP response from the server
+ *
+ * @throws boost::system::system_error On network or connection errors
+ * @throws boost::beast::system_error On HTTP protocol errors
+ *
+ * @note This function performs blocking I/O operations
+ * @note The connection is not kept alive and is closed after the response is received
+ */
 auto MakeRequest(const std::string& path, const rest::ServerConfig& config, http::verb method = http::verb::get, std::string content_type = "text/plain", std::string accept_content_type = "text/plain")
 {
     net::io_context ioc;

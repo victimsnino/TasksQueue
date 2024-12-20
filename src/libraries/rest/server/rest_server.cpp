@@ -35,6 +35,12 @@ namespace rest
 {
     namespace
     {
+        /**
+         * Logs an exception to standard error stream.
+         * @param e Exception pointer to be logged. If the pointer is valid,
+         *          the exception will be rethrown and caught to extract its message.
+         * @note This function writes to std::cerr and does not throw exceptions.
+         */
         void LogError(std::exception_ptr e)
         {
             if (e)
@@ -52,6 +58,10 @@ namespace rest
 
         struct ServerContext
         {
+            /**
+             * Constructs a ServerContext with a router.
+             * @param router The router to be moved into the ServerContext.
+             */
             explicit ServerContext(Router&& router)
                 : router(std::move(router))
             {
@@ -61,6 +71,11 @@ namespace rest
             std::atomic_bool started{};
         };
 
+        /**
+         * Converts an HTTP verb to a REST request method.
+         * @param method The HTTP verb to convert
+         * @return An optional containing the corresponding REST request method, or empty if the verb is not supported
+         */
         std::optional<rest::Request::Method> ParseMethod(http::verb method)
         {
             switch (method)
@@ -76,6 +91,13 @@ namespace rest
             }
         }
 
+        /**
+         * Creates a Beast HTTP response from a REST response object.
+         * @param response The REST response object containing status code, content type and body
+         * @return A fully prepared Beast HTTP response with string body, server header set to "TasksQueue"
+         *         and appropriate content type
+         * @note The response payload is automatically prepared before returning
+         */
         boost::beast::http::response<boost::beast::http::string_body> CreateResponse(const rest::Response& response)
         {
             boost::beast::http::response<boost::beast::http::string_body> res;
@@ -87,6 +109,27 @@ namespace rest
             return res;
         }
 
+        /**
+         * Prepares an HTTP response by validating and routing an incoming HTTP request.
+         *
+         * @param req The HTTP request to process, containing method, headers, and body
+         * @param router The router object responsible for handling the request routing
+         *
+         * @return Response object containing:
+         *         - On success: The routed response from the handler
+         *         - On error: A 405 status for unsupported methods
+         *                     A 400 status for invalid content type or accept headers
+         *
+         * @throws None
+         *
+         * The function validates:
+         * - HTTP method
+         * - Content-Type header
+         * - Accept header
+         *
+         * If any validation fails, returns an error response with appropriate status code
+         * and plain text error message.
+         */
         Response PrepareResponse(const http::request<http::string_body>& req, const Router& router)
         {
             const auto method = ParseMethod(req.method());
@@ -104,6 +147,25 @@ namespace rest
             return router.Route({.method = method.value(), .path = req.target(), .body = req.body(), .content_type = content_type.value(), .accept_content_type = accept_content_type.value()});
         }
 
+        /**
+         * Handles a single HTTP session asynchronously using Boost.Beast.
+         *
+         * @param stream TCP stream for the connection
+         * @param ctx Shared server context containing routing information
+         *
+         * @details
+         * The function performs the following operations:
+         * 1. Sets a 30-second timeout for the stream
+         * 2. Reads an HTTP request asynchronously
+         * 3. Processes the request through the router
+         * 4. Sends back the response
+         * 5. Performs a clean TCP shutdown
+         *
+         * @throws boost::system::system_error On network or protocol errors
+         * @throws std::runtime_error On session handling failures
+         *
+         * @note This is a coroutine that returns a net::awaitable<void>
+         */
         net::awaitable<void> DoSession(beast::tcp_stream stream, std::shared_ptr<ServerContext> ctx)
         {
             // This buffer is required to persist across reads
@@ -120,6 +182,28 @@ namespace rest
             stream.socket().shutdown(net::ip::tcp::socket::shutdown_send);
         }
 
+        /**
+         * Asynchronously listens for incoming TCP connections and spawns session handlers.
+         *
+         * @param endpoint The TCP endpoint to listen on
+         * @param ctx Shared server context containing server state and configuration
+         * @return An awaitable that never completes normally (runs until server shutdown)
+         * 
+         * @details
+         * This coroutine sets up a TCP acceptor that:
+         * - Opens the specified endpoint
+         * - Enables address reuse
+         * - Binds to the specified endpoint
+         * - Listens for incoming connections
+         * - Notifies server startup through the context
+         * - Continuously accepts new connections and spawns session handlers
+         *
+         * @throws boost::system::system_error On socket/binding/listening errors
+         * @throws std::bad_alloc If memory allocation fails
+         *
+         * @note This function runs indefinitely in an accept loop until the server is shut down
+         * @note Thread-safe: Multiple instances can run on different endpoints
+         */
         net::awaitable<void> DoListen(net::ip::tcp::endpoint endpoint, std::shared_ptr<ServerContext> ctx)
         {
             auto acceptor = net::use_awaitable.as_default_on(tcp::acceptor(co_await net::this_coro::executor));
@@ -149,6 +233,10 @@ namespace rest
 
     struct ServerLifetime
     {
+        /**
+         * Constructs a ServerLifetime instance with a specified number of threads.
+         * @param threads The number of threads to allocate for the IO context.
+         */
         explicit ServerLifetime(int threads)
             : ioc{threads}
         {
@@ -158,16 +246,36 @@ namespace rest
         std::vector<std::thread> threads{};
     };
 
+    /**
+     * Constructor for the StopHandler class.
+     * @param ctx A shared pointer to ServerLifetime object that manages the server's lifecycle.
+     *           Ownership of the pointer is transferred to this handler.
+     */
     StopHandler::StopHandler(std::shared_ptr<ServerLifetime> ctx)
         : m_ctx{std::move(ctx)}
     {
     }
 
+    /**
+     * Destructor for the StopHandler class.
+     * Ensures cleanup by calling Stop() before destruction.
+     * @note This destructor is marked noexcept and will not throw exceptions.
+     */
     StopHandler::~StopHandler() noexcept
     {
         Stop();
     }
 
+    /**
+     * Stops the IO context and joins all associated threads.
+     * 
+     * This method safely stops the IO context if it's running and ensures all threads
+     * are properly joined. It is thread-safe and idempotent - multiple calls will not
+     * cause issues.
+     * 
+     * @note This is a blocking call that waits for all threads to complete
+     * @thread_safety Thread-safe
+     */
     void StopHandler::Stop() const
     {
         if (!m_ctx->ioc.stopped())
@@ -179,6 +287,25 @@ namespace rest
         }
     }
 
+    /**
+     * Starts an asynchronous HTTP server with the specified router and configuration.
+     *
+     * @param router Router object containing route handlers (moved into server context)
+     * @param config Server configuration containing address, port, and thread settings
+     *
+     * @return StopHandler object that can be used to gracefully shutdown the server
+     *
+     * @details
+     * The server is started with the following sequence:
+     * 1. Creates a server context with the provided router
+     * 2. Initializes a thread pool based on configuration
+     * 3. Spawns an asynchronous listener on the specified endpoint
+     * 4. Starts worker threads to handle incoming connections
+     * 5. Waits for server to fully start before returning
+     *
+     * @note The server runs asynchronously in the background after this function returns
+     * @thread_safety Thread-safe after server initialization
+     */
     StopHandler StartServer(Router&& router, const ServerConfig& config)
     {
         auto server_ctx = std::make_shared<ServerContext>(std::move(router));
